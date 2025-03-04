@@ -3,5 +3,4 @@ CREATE TABLE "User" (
     username VARCHAR(255) UNIQUE NOT NULL,
     password VARCHAR(255) NOT NULL,
     token VARCHAR(255),
-    created_at TIMESTAMP DEFAULT NOW(),
-)
+    created_at TIMESTAMP DEFAULT NOW())
