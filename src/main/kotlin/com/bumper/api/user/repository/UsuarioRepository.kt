@@ -1,3 +1,7 @@
+package com.bumper.api
+
+import com.bumper.api.domain.Usuario
+// Utilizaremos JdbcTemplate para interactuar con la base de datos
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
 import org.springframework.stereotype.Repository
@@ -21,35 +25,35 @@ class UsuarioRepository(private val dataSource: DataSource) {
     }
 
     // Guardar un usuario en la base de datos
-    fun save(usuarioData: Usuario): Usuario {
+    fun save(usuario: Usuario): Usuario {
         val sql = """
             INSERT INTO usuarios (nombre, apellido, mail, password, token)
-            VALUES (?, ?, ?, ?, ?)
+            VALUES (%s, %s, %s, %s, %s)
             RETURNING id
-        """ 
+        """
         val id = jdbcTemplate.queryForObject(
             sql,
             arrayOf(
-                usuarioData.nombre,
-                usuarioData.apellido,
-                usuarioData.mail,
-                usuarioData.password,
-                usuarioData.token
+                usuario.nombre,
+                usuario.apellido,
+                usuario.mail,
+                usuario.password,
+                usuario.token
             ),
             Long::class.java
         )
-        return usuarioData.copy(id = id ?: throw IllegalStateException("No se pudo guardar el usuario"))
+        return usuario.copy(id = id ?: throw IllegalStateException("No se pudo guardar el usuario"))
     }
 
     // Buscar un usuario por su correo electrónico
     fun findByMail(mail: String): Usuario? {
-        val sql = "SELECT * FROM usuarios WHERE mail = ?"
+        val sql = "SELECT * FROM usuarios WHERE mail = %s"
         return jdbcTemplate.query(sql, usuarioRowMapper, mail).firstOrNull()
     }
 
     // Actualizar el token de un usuario
     fun updateToken(mail: String, token: String) {
-        val sql = "UPDATE usuarios SET token = ? WHERE mail = ?"
+        val sql = "UPDATE usuarios SET token = ? WHERE mail = %s"
         jdbcTemplate.update(sql, token, mail)
     }
 }

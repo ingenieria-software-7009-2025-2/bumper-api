@@ -1,37 +1,41 @@
-class UsuarioService{
+package com.bumper.api
 
-    fun crearUsuario(usuarioData: Usuario): Usuario {
-        return usuarioRepository.save(usuarioData)
+import com.bumper.api.domain.Usuario
+import com.bumper.api.repository.UsuarioRepository
+import org.springframework.stereotype.Service
+
+@Service
+class UsuarioService(private val usuarioRepository: UsuarioRepository) {
+
+    // Crear un nuevo usuario
+    fun crearUsuario(usuario: Usuario): Usuario {
+        return usuarioRepository.save(usuario)
     }
 
+    // Iniciar sesión
     fun iniciarSesion(mail: String, password: String): Usuario {
         val usuario = usuarioRepository.findByMail(mail)
+            ?: throw IllegalArgumentException("Usuario no encontrado")
         if (usuario.password != password) {
-            throw IllegalArgumentException("Credenciales inválidas")
+            throw IllegalArgumentException("Credenciales incorrectas")
         }
-        usuario.token = "activo"
+        usuarioRepository.updateToken(mail, "activo")
+        return usuario.copy(token = "activo")
+    }
+
+    // Cerrar sesión
+    fun cerrarSesion(mail: String) {
+        usuarioRepository.updateToken(mail, "inactivo")
+    }
+
+    // Obtener información de un usuario
+    fun obtenerUsuario(mail: String): Usuario {
+        return usuarioRepository.findByMail(mail)
+            ?: throw IllegalArgumentException("Usuario no encontrado")
+    }
+
+    // Actualizar información de un usuario
+    fun actualizarUsuario(usuario: Usuario): Usuario {
         return usuarioRepository.save(usuario)
-
-    }
-
-    fun cerrarSesion(mail: String, token: String) {
-        usuario.token = "inactivo"
-        usuarioRepository.save(usuario)
-    }
-
-    fun obtenerUsuario(mail: String, token: String): Usuario {
-        val usuario = usuarioRepository.findByMail(mail)
-        if token == "inactivo" {
-            throw IllegalArgumentException("Usuario no autenticado")
-        }
-        return usuario
-
-    }
-
-    fun actualizarUsuario(usuarioData: Usuario, token: String): Usuario {
-        if token == "inactivo" {
-            throw IllegalArgumentException("Usuario no autenticado")
-        }
-        return usuarioRepository.save(usuarioData)
     }
 }
