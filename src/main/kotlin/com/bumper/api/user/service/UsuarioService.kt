@@ -1,7 +1,7 @@
-package com.bumper.api
+package com.bumper.api.user.service
 
-import com.bumper.api.domain.Usuario
-import com.bumper.api.repository.UsuarioRepository
+import com.bumper.api.user.domain.Usuario
+import com.bumper.api.user.repository.UsuarioRepository
 import org.springframework.stereotype.Service
 
 @Service

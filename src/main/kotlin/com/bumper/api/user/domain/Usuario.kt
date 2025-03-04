@@ -1,4 +1,4 @@
-package com.bumper.bumper.api
+package com.bumper.bumper.api.user.domain
 
 data class Usuario(
     @field:NotNull

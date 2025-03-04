@@ -1,6 +1,6 @@
-package com.bumper.api
+package com.bumper.api.user.domain
 
-import com.bumper.api.domain.Usuario
+import com.bumper.api.user.domain.Usuario
 // Utilizaremos JdbcTemplate para interactuar con la base de datos
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
