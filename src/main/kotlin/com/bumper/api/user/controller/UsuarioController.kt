@@ -17,7 +17,7 @@ class UsuarioController @Autowired constructor(private val usuarioService: Usuar
     }
 
     @PostMapping("/login")
-    fun iniciarSesion(@RequestBody credenciales: Map<String, String>): ResponseEntity<Usuario> {
+    fun login(@RequestBody credenciales: Map<String, String>): ResponseEntity<Usuario> {
         val mail = credenciales["mail"] ?: throw IllegalArgumentException("Correo requerido")
         val password = credenciales["password"] ?: throw IllegalArgumentException("Password requerido")
         val usuario = usuarioService.iniciarSesion(mail, password)
@@ -25,19 +25,19 @@ class UsuarioController @Autowired constructor(private val usuarioService: Usuar
     }
 
     @PostMapping("/logout")
-    fun cerrarSesion(@RequestHeader("mail") mail: String): ResponseEntity<String> {
-        usuarioService.cerrarSesion(mail)
+    fun logout(@RequestHeader("mail", "token")): ResponseEntity<String> {
+        usuarioService.cerrarSesion(mail, token)
         return ResponseEntity.ok("Sesión cerrada")
     }
 
     @GetMapping("/me")
-    fun obtenerUsuario(@RequestHeader("mail") mail: String): ResponseEntity<Usuario> {
-        val usuario = usuarioService.obtenerUsuario(mail)
+    fun getUser(@RequestHeader("mail", "token") mail: String): ResponseEntity<Usuario> {
+        val usuario = usuarioService.obtenerUsuario(mail, token)
         return ResponseEntity.ok(usuario)
     }
 
     @PutMapping("/update")
-    fun actualizarUsuario(@RequestBody usuarioData: Usuario): ResponseEntity<Usuario> {
+    fun updateUser(@RequestBody usuarioData: Usuario): ResponseEntity<Usuario> {
         if (usuarioData.token != "activo") {
             throw IllegalArgumentException("Usuario no autenticado")
         }
