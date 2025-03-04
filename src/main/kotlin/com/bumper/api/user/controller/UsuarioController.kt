@@ -1,0 +1,47 @@
+package com.bumper.bumper.api
+import org.springframework.http.ResponseEntity
+import org.springframework.web.bind.annotation.*
+import org.springframework.web.bind.annotation.RequestBody
+import org.springframework.web.bind.annotation.RequestHeader
+import org.springframework.web.bind.annotation.RequestMapping
+import org.springframework.web.bind.annotation.RestController
+
+@RestController
+@RequestMapping("/v1/users")
+class UsuarioController @Autowired constructor(private val usuarioService: UsuarioService) {
+
+    @PostMapping
+    fun createUser(@Valid @RequestBody usuarioData: Usuario): ResponseEntity<Usuario> {
+        val nuevoUsuario = usuarioService.crearUsuario(usuarioData)
+        return ResponseEntity.ok(nuevoUsuario)
+    }
+
+    @PostMapping("/login")
+    fun iniciarSesion(@RequestBody credenciales: Map<String, String>): ResponseEntity<Usuario> {
+        val mail = credenciales["mail"] ?: throw IllegalArgumentException("Correo requerido")
+        val password = credenciales["password"] ?: throw IllegalArgumentException("Password requerido")
+        val usuario = usuarioService.iniciarSesion(mail, password)
+        return ResponseEntity.ok(usuario)
+    }
+
+    @PostMapping("/logout")
+    fun cerrarSesion(@RequestHeader("mail") mail: String): ResponseEntity<String> {
+        usuarioService.cerrarSesion(mail)
+        return ResponseEntity.ok("Sesión cerrada")
+    }
+
+    @GetMapping("/me")
+    fun obtenerUsuario(@RequestHeader("mail") mail: String): ResponseEntity<Usuario> {
+        val usuario = usuarioService.obtenerUsuario(mail)
+        return ResponseEntity.ok(usuario)
+    }
+
+    @PutMapping("/update")
+    fun actualizarUsuario(@RequestBody usuarioData: Usuario): ResponseEntity<Usuario> {
+        if (usuarioData.token != "activo") {
+            throw IllegalArgumentException("Usuario no autenticado")
+        }
+        val usuarioActualizado = usuarioService.actualizarUsuario(usuarioData)
+        return ResponseEntity.ok(usuarioActualizado)
+    }
+}
