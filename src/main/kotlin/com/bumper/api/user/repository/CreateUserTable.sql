@@ -6,3 +6,8 @@ CREATE TABLE usuarios (
     password VARCHAR(100) NOT NULL,
     token VARCHAR(20) DEFAULT 'inactivo'
 );
+
+INSERT INTO usuarios (mail, nombre, apellido, password) 
+VALUES ('holatv@gmail.com', 'hola', 'tv', '1234');
+
+UPDATE usuarios SET token = 'activo' WHERE nombre = 'hola';

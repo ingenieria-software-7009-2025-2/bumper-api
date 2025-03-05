@@ -36,6 +36,6 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
 
     // Actualizar información de un usuario
     fun actualizarUsuario(usuario: Usuario): Usuario {
-        return usuarioRepository.save(usuario)
+        return usuarioRepository.update(usuario)
     }
 }

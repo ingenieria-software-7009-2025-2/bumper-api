@@ -47,4 +47,14 @@ class UsuarioRepository(private val dataSource: DataSource) {
         val sql = "UPDATE usuarios SET token = ? WHERE mail = ?"
         jdbcTemplate.update(sql, token, mail)
     }
+
+    fun update(usuario: Usuario): Usuario {
+        val sql = """
+            UPDATE usuarios
+            SET mail = ?, nombre = ?, apellido = ?, password = ?, token = ?
+            WHERE id = ?
+        """
+        jdbcTemplate.update(sql, usuario.mail, usuario.nombre, usuario.apellido, usuario.password, usuario.token, usuario.id)
+        return usuario
+    }
 }
