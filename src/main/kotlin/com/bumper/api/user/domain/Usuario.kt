@@ -1,21 +1,10 @@
-package com.bumper.bumper.api.user.domain
+package com.bumper.api.user.domain
 
 data class Usuario(
-    @field:NotNull
-    @field:Email
+    val id: Long = 0,
     val mail: String,
-
-    @field:NotNull
-    @field:Size(min = 2, max = 50)
     val nombre: String,
-
-    @field:NotNull
-    @field:Size(min = 2, max = 50)
     val apellido: String,
-
-    @field:NotNull
-    @field:Size(min = 6, max = 20)
     val password: String,
-
     var token: String = "inactivo"
 )
