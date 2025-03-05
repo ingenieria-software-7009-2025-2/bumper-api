@@ -1,4 +1,4 @@
-package com.bumper.bumper.api
+package com.bumper.api
 
 data class Mascota(
     val tipo: String = "",

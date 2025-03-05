@@ -1,4 +1,4 @@
-package com.bumper.bumper.api
+package com.bumper.api
 
 import org.springframework.boot.autoconfigure.SpringBootApplication
 import org.springframework.boot.runApplication
