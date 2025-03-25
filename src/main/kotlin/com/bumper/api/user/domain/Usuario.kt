@@ -1,21 +1,14 @@
 package com.bumper.api.user.domain
 
-import jakarta.persistence.Entity
-import jakarta.persistence.Table
-import jakarta.persistence.Id
-import jakarta.persistence.GeneratedValue
-import jakarta.persistence.GenerationType
-import jakarta.persistence.Column
+import jakarta.persistence.*
+import java.util.Collections.emptyList
 
 @Entity
 @Table(name = "usuarios")
 data class Usuario(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY) // 🚀 Usa IDENTITY para PostgreSQL
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
     val id: Long = 0,
-
-    @Column(unique = true, nullable = false)
-    val mail: String,
 
     @Column(nullable = false)
     val nombre: String,
@@ -23,9 +16,18 @@ data class Usuario(
     @Column(nullable = false)
     val apellido: String,
 
+    @Column(unique = true, nullable = false, name = "correo")
+    val correo: String,
+
     @Column(nullable = false)
     val password: String,
 
-    @Column(columnDefinition = "VARCHAR(255) DEFAULT 'inactivo'")
-    var token: String = "inactivo"
+    @Column(columnDefinition = "VARCHAR(20) DEFAULT 'inactivo'")
+    var token: String = "inactivo",
+
+    @Column(name = "numero_incidentes", nullable = false)
+    var numeroIncidentes: Int = 0,
+
+    @OneToMany(mappedBy = "usuario", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    val incidentes: List<Incidente> = emptyList()
 )
