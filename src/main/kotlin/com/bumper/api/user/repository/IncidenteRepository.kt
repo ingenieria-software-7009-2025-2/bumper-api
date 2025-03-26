@@ -10,13 +10,20 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 
 @Repository
-class IncidenteRepository(private val dataSource: DataSource, private val usuarioRepository: UsuarioRepository) {
+class IncidenteRepository(private val dataSource: DataSource) {
 
     private val jdbcTemplate = JdbcTemplate(dataSource)
 
     private val incidenteRowMapper = RowMapper { rs, _ ->
-        val usuario = usuarioRepository.findById(rs.getLong("usuario_id"))
-            ?: throw IllegalStateException("Usuario no encontrado para el incidente")
+        val usuario = Usuario(
+            id = rs.getLong("usuario_id"),
+            nombre = rs.getString("u_nombre"),
+            apellido = rs.getString("u_apellido"),
+            correo = rs.getString("u_correo"),
+            password = rs.getString("u_password"),
+            token = rs.getString("u_token"),
+            numeroIncidentes = rs.getInt("u_numero_incidentes")
+        )
         Incidente(
             id = rs.getLong("id"),
             usuario = usuario,
@@ -44,12 +51,33 @@ class IncidenteRepository(private val dataSource: DataSource, private val usuari
     }
 
     fun findAll(): List<Incidente> {
-        val sql = "SELECT * FROM incidentes"
+        val sql = """
+            SELECT i.*, 
+                   u.nombre AS u_nombre, 
+                   u.apellido AS u_apellido, 
+                   u.correo AS u_correo, 
+                   u.password AS u_password, 
+                   u.token AS u_token, 
+                   u.numero_incidentes AS u_numero_incidentes
+            FROM incidentes i
+            JOIN usuarios u ON i.usuario_id = u.id
+        """
         return jdbcTemplate.query(sql, incidenteRowMapper)
     }
 
     fun findByUsuarioId(usuarioId: Long): List<Incidente> {
-        val sql = "SELECT * FROM incidentes WHERE usuario_id = ?"
+        val sql = """
+            SELECT i.*, 
+                   u.nombre AS u_nombre, 
+                   u.apellido AS u_apellido, 
+                   u.correo AS u_correo, 
+                   u.password AS u_password, 
+                   u.token AS u_token, 
+                   u.numero_incidentes AS u_numero_incidentes
+            FROM incidentes i
+            JOIN usuarios u ON i.usuario_id = u.id
+            WHERE i.usuario_id = ?
+        """
         return jdbcTemplate.query(sql, incidenteRowMapper, usuarioId)
     }
 }

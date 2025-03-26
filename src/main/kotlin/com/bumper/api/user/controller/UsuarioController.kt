@@ -19,6 +19,20 @@ class UsuarioController(private val usuarioService: UsuarioService) {
         return ResponseEntity.ok("¡Hola desde el controlador de usuarios!")
     }
 
+
+    @GetMapping("/me")
+    fun obtenerUsuario(@RequestHeader("correo") correo: String): ResponseEntity<Any> {
+        logger.info("Obteniendo información para el usuario con correo: $correo")
+        val usuario = usuarioService.obtenerUsuario(correo)
+        return if (usuario != null) {
+            logger.info("Usuario encontrado: ${usuario.correo}, incidentes: ${usuario.numeroIncidentes}")
+            ResponseEntity.ok(usuario)
+        } else {
+            logger.warn("Usuario no encontrado con correo: $correo")
+            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado")
+        }
+    }
+
     /**
      * Endpoint para crear un nuevo usuario en el sistema.
      *
@@ -148,43 +162,6 @@ class UsuarioController(private val usuarioService: UsuarioService) {
             logger.error("Error al cerrar sesión: ${e.message}", e)
 
             // Retorna una respuesta HTTP con estado 404 (NOT FOUND) y un mensaje indicando que el usuario no fue encontrado.
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado")
-        }
-    }
-
-
-    /**
-     * Endpoint para obtener la información de un usuario autenticado.
-     *
-     * @param correo Representa el correo del usuario cuya información se desea obtener. Este valor se recibe
-     *               mediante un encabezado HTTP con el nombre "correo", gracias a la anotación `@RequestHeader`.
-     *
-     * @return Retorna una respuesta HTTP encapsulada en un objeto [ResponseEntity]:
-     *         - Si el usuario es encontrado, retorna un estado HTTP 200 (OK) junto con los datos del usuario
-     *           en el cuerpo de la respuesta.
-     *         - Si el usuario no es encontrado, retorna un estado HTTP 404 (NOT FOUND) con un mensaje
-     *           indicando que el usuario no fue encontrado.
-     */
-    @GetMapping("/me")
-    fun obtenerUsuario(@RequestHeader("correo") correo: String): ResponseEntity<Any> {
-        // Registra en el logger el intento de obtener la información del usuario con el correo proporcionado.
-        logger.info("Obteniendo información para el usuario con correo: $correo")
-
-        // Llama al servicio `usuarioService` para buscar al usuario por su correo.
-        val usuario = usuarioService.obtenerUsuario(correo)
-
-        // Verifica si el usuario fue encontrado.
-        return if (usuario != null) {
-            // Registra en el logger los detalles del usuario encontrado, incluyendo su correo y número de incidentes.
-            logger.info("Usuario encontrado: ${usuario.correo}, incidentes: ${usuario.numeroIncidentes}")
-
-            // Retorna una respuesta HTTP con estado 200 (OK) y los datos del usuario en el cuerpo.
-            ResponseEntity.ok(usuario)
-        } else {
-            // Registra en el logger una advertencia si el usuario no fue encontrado.
-            logger.warn("Usuario no encontrado con correo: $correo")
-
-            // Retorna una respuesta HTTP con estado 404 (NOT FOUND) y un mensaje indicando que el usuario no existe.
             ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado")
         }
     }
