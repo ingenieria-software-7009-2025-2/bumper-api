@@ -1,0 +1,150 @@
+\section{Viaje del usuario}
+
+Primera iteración sobre lo que pensaría tanto el cliente como el equipo de desarrollo sobre la forma de trabajar del sistema y la forma en como los usuarios pueden hacer uso de la aplicación.
+
+\begin{multicols}{2}
+
+\section*{1. Acceso Inicial}
+
+\textbf{Paso 1:} Ingresa a la web $\rightarrow$ \textit{Landing page} con:
+
+\begin{itemize}
+    \item Mapa interactivo central (iconos de incidentes existentes).
+    \item Botón para \textbf{Reportar Incidente}.
+    \item Menú superior: Registro/Ingresar o acceso como invitado (solo visualización).
+\end{itemize}
+
+\section*{2. Exploración del Mapa}
+
+\textbf{Paso 2:} Interactúa con el mapa:
+\begin{itemize}
+    \item Zoom/Arrastre: Explora zonas geográficas.
+    \item Clic en incidente: Pop-up muestra:
+    \begin{itemize}
+        \item Mini-galería de fotos (vistas previas).
+        \item Estado (Reportado/En Proceso/Resuelto).
+        \item Comentarios.
+    \end{itemize}
+    \item Filtros Laterales:
+    \begin{itemize}
+        \item Categorías (Baches, Alumbrado, Basura, etc.).
+        \item Rango de fechas.        
+    \end{itemize}
+\end{itemize}
+
+\section*{3. Creación de Reporte}
+
+\textbf{Paso 3:} Clic en Reportar Incidente $\rightarrow$ Formulario de 4 pasos:
+
+\textbf{Inicio de sesión previo}\\
+\textbf{Paso 3.1 - Ubicación}
+\begin{itemize}
+    \item Mapa para marcar ubicación exacta:
+    \begin{itemize}
+        \item Auto-detección de geolocalización (opcional).
+        \item Escribir la dirección
+        \item Ajuste manual con arrastre del marcador (opcional)
+    \end{itemize}
+\end{itemize}
+
+\textbf{Paso 3.2 - Detalles del Incidente}
+\begin{itemize}
+    \item Campos obligatorios:
+    \begin{itemize}
+        \item Tipo: Dropdown con categorías predefinidas.
+        \item Título: 60 caracteres máx. (ej: Bache peligroso en Av. Principal).
+        \item Descripción: Texto libre (500 caracteres) con placeholder de instrucciones
+        \item Fotos: Subida de hasta 4 archivos (formatos: JPG/PNG).
+    \end{itemize}
+    \item Campos opcionales:
+    \begin{itemize}        
+        \item Etiquetas: sobre tendencias de la ciudad o características del incidente.
+    \end{itemize}
+\end{itemize}
+
+\textbf{Paso 3.3 - Previsualización}
+\begin{itemize}
+    \item Resumen del reporte con:
+    \begin{itemize}
+        \item Miniatura del mapa + dirección aproximada.
+        \item Vista previa de fotos subidas.
+    \end{itemize}
+    \item Advertencia de datos públicos: Este reporte será visible para todos los usuarios.
+\end{itemize}
+
+\textbf{Paso 3.4 - Confirmación}
+\begin{itemize}
+    \item Opciones:
+    \begin{itemize}
+        \item Publicar ahora
+        \item Descartar cambios
+    \end{itemize}
+\end{itemize}
+
+\section*{4. Post-Publicación}
+
+\textbf{Paso 4:} Reporte publicado $\rightarrow$ Redirección a página del incidente con:
+\begin{itemize}
+    \item Código Único: para seguimiento.
+    \item Sección de Actualizaciones:
+    \begin{itemize}
+        \item Timeline vacío (se llenará con interacciones).
+        \item lista de incidentes por las fechas
+    \end{itemize}
+    \item Acciones Habilitadas: (EXTRAS)
+    \begin{itemize}
+        \item Apoyar $\rightarrow$ Más comentarios
+        \item Compartir $\rightarrow$ Genera enlace para posteos.
+    \end{itemize}
+\end{itemize}
+
+\section*{5. Interacción de Otros Usuarios (EXTRA)}
+
+\textbf{Escenario A - Actualizar Estado:}
+\begin{itemize}
+    \item Usuario secundario clic en Marcar como Resuelto.
+    \item Modal solicita:
+    \begin{itemize}
+        \item Subida de 1+ fotos que evidencien la solución.
+        \item Breve descripción (ej: Bache rellenado con asfalto).
+    \end{itemize}
+    \item Sistema verifica:
+    \begin{itemize}
+        \item Geolocalización del usuario vs ubicación del reporte (radio de 50m).
+        \item Consenso comunitario: Si 3+ usuarios validan en 24h $\rightarrow$ Estado cambia a Resuelto.
+    \end{itemize}
+\end{itemize}
+
+\textbf{Escenario B - Aportar Información:}
+\begin{itemize}
+    \item Clic en Añadir Pruebas $\rightarrow$ Sube fotos/videos adicionales.
+    \item Comentario contextual: Texto libre (280 caracteres).
+    \item Nuevos archivos aparecen en galería con tag Contribución comunitaria.
+\end{itemize}
+
+\textbf{Escenario C - Discrepar:}
+\begin{itemize}
+    \item Botón Esto no está resuelto $\rightarrow$ Abre formulario de disputa.
+    \item Usuario debe:
+    \begin{itemize}
+        \item Seleccionar motivo (opciones predefinidas: Solución parcial, Daño recurrente).
+        \item Opcional: Adjuntar foto actualizada.
+    \end{itemize}
+    \item Disputa reinicia el estado a En Proceso.
+\end{itemize}
+
+\section*{6. Seguimiento Personalizado (EXTRA)}
+
+\textbf{Perfil de Usuario} (requiere registro):
+\begin{itemize}
+    \item Mis Reportes: Listado con filtros por estado.
+    \item Contribuciones: Historial de incidentes, fotos añadidas y validaciones.
+\end{itemize}
+
+\textbf{Notificaciones:}
+\begin{itemize}
+    \item Alertas cuando otros interactúan con sus reportes.
+    \item Recordatorios si un incidente sigue activo tras 15 días.
+\end{itemize}
+
+\end{multicols}

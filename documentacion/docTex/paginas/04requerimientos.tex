@@ -1,0 +1,73 @@
+\section{Requerimientos}
+
+\subsection*{Funcionales}
+
+\begin{enumerate}
+    \item \textbf{Autenticación de Usuarios (RF1)}
+    \begin{itemize}
+        \item Registro y acceso con email y contraseña.        
+        \item Niveles de acceso: Ciudadano y Administrador (E)
+    \end{itemize}
+
+    \item \textbf{Gestión de Incidentes (RF2)}
+    \begin{itemize}
+        \item Usuario puede crear, editar y eliminar reportes.
+        \item Verificar datos (las imágenes se suben correctamente)
+        \item Sistema de etiquetas para hacer filtros más sencillos.
+    \end{itemize}
+
+    \item \textbf{Integración con Mapa en Tiempo Real (RF3)}
+    \begin{itemize}
+        \item Importar API para visualizar e interactuar con el mapa.
+        \item Manipulación visual para añadir items dentro del mapa.
+        \item Geolocalización automática. (E)
+    \end{itemize}
+
+    \item \textbf{Filtro (RF4)}
+    \begin{itemize}
+        \item Búsqueda por palabras clave, categoría y rango de fechas.        
+    \end{itemize}
+
+    \item \textbf{Visualización de Datos (RF5)}
+    \begin{itemize}
+        \item Pantalla principal.
+        \item Pantalla login.
+        \item Pantalla crear incidente.
+        \item Pantalla editar incidente.
+        \item Pantalla filtrar incidentes.
+    \end{itemize}
+\end{enumerate}
+
+\subsection*{Requerimientos No Funcionales}
+
+\begin{enumerate}
+    \item \textbf{Seguridad (RNF1)}
+    \begin{itemize}
+        \item Seguridad en el registro de contraseñas y correos.
+        \item Proteger los datos de los usuarios. (E)        
+    \end{itemize}
+
+    \item \textbf{Rendimiento (RNF2)}
+    \begin{itemize}
+        \item Buscar optimización del mapa para cargar y manipularlo con baja latencia
+        \item Implementación para soportar registros simultáneos.
+    \end{itemize}
+
+    \item \textbf{Disponibilidad (RNF3)}
+    \begin{itemize}
+        \item Solución local.
+        \item Buscar un host sencillo.  (E)
+    \end{itemize}
+
+    \item \textbf{Usabilidad (RNF4)}
+    \begin{itemize}
+        \item Interfaz responsiva.
+        \item Diseño intuitivo.
+    \end{itemize}
+
+    \item \textbf{Escalabilidad (RNF5)}
+    \begin{itemize}
+        \item Arquitectura modular.
+        \item Base de datos escalable.
+    \end{itemize}
+\end{enumerate}

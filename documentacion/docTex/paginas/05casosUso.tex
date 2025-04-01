@@ -1,0 +1,114 @@
+\section{Casos de Uso}
+
+\begin{multicols}{2}
+
+% --- CASO DE USO 1: HACER LOGIN ---
+\subsection*{CU1: Autenticación de Usuario}
+\textbf{Actores:} Ciudadano, Sistema\\
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item Usuario accede a la página de login (RF1)
+    \item Ingresa email y contraseña registrados
+    \item Sistema verifica credenciales en base de datos (RNF1)
+    \item Redirección al dashboard principal (RNF4)
+\end{enumerate}
+
+\textbf{Flujo Alternativo:}
+\begin{itemize}
+    \item Credenciales incorrectas:
+    \begin{enumerate}
+        \item Sistema muestra error específico
+        \item Ofrece recuperación de contraseña vía email
+    \end{enumerate}
+    \item Cuenta no verificada:
+    \begin{enumerate}
+        \item Sistema bloquea acceso
+        \item Reenvía enlace de verificación
+    \end{enumerate}
+\end{itemize}
+
+% --- CASO DE USO 2: REPORTAR INCIDENTE ---
+\subsection*{CU2: Reportar Incidente Urbano}
+\textbf{Actores:} Ciudadano, Sistema\\
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item El usuario inicia sesión (RF1) o se registra
+    \item Selecciona Reportar Incidente desde el mapa (RF3)
+    \item Marca ubicación en el mapa con geolocalización asistida (RNF2)
+    \item Completa formulario con: categoría, título, descripción y fotos (RF2)
+    \item Sistema valida y almacena el reporte en la base de datos (RNF5)
+    \item Muestra página de confirmación con código único (RF5)
+\end{enumerate}
+
+% --- CASO DE USO 3: EDITAR CASO URBANO ---
+\subsection*{CU3: Modificar Reporte Existente}
+\textbf{Actores:} Ciudadano, Sistema\\
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item Usuario accede a Mis Reportes en su perfil (RF2)
+    \item Selecciona incidente no publicado para editar
+    \item Modifica campos permitidos: descripción, fotos, etiquetas (RF2)
+    \item Sistema valida cambios y actualiza timestamp (RNF5)
+    \item Muestra versión actualizada con historial de modificaciones
+\end{enumerate}
+
+\textbf{Flujo Alternativo:}
+\begin{itemize}
+    \item Intento de editar reporte publicado:
+    \begin{enumerate}
+        \item Sistema bloquea cambios directos
+        \item Ofrece crear nueva versión como actualización
+    \end{enumerate}
+\end{itemize}
+
+% --- CASO DE USO 4: INTERACCIÓN CON MAPA ---
+\subsection*{CU4: Explorar Incidentes en Mapa}
+\textbf{Actores:} Usuario (registrado/invitado), Sistema\\
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item Usuario visualiza mapa principal (RF3)
+    \item Aplica filtros por categoría/fecha (RF4)
+    \item Haz clic en marcador para ver detalle
+    \item Sistema carga pop-up con:
+    \begin{itemize}
+        \item Galería de fotos (RNF2)
+        \item Estado actualizado
+        \item Botones de interacción
+    \end{itemize}
+\end{enumerate}
+
+\textbf{Flujo Alternativo:}
+\begin{itemize}
+    \item Filtros sin resultados:
+    \begin{itemize}
+        \item Sistema sugiere ajustar parámetros
+        \item Muestra heatmap de zonas problemáticas
+    \end{itemize}
+\end{itemize}
+
+% --- CASO DE USO 5: COMENTAR REPORTE ---
+\subsection*{CU5: Añadir Comentario Público}
+\textbf{Actores:} Usuario Registrado, Sistema\\
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item Usuario selecciona incidente en mapa/listado (RF4)
+    \item Clic en Añadir Comentario
+    \item Escribe mensaje
+    \item Sistema analiza contenido (RNF1):
+    \begin{itemize}
+        \item Filtra lenguaje ofensivo
+        \item Detecta spam
+    \end{itemize}
+    \item Publica comentario
+\end{enumerate}
+
+\textbf{Flujo Alternativo:}
+\begin{itemize}
+    \item Comentario rechazado:
+    \begin{enumerate}
+        \item Sistema muestra políticas de comunidad
+        \item Ofrece editar el contenido
+    \end{enumerate}
+\end{itemize}
+
+\end{multicols}

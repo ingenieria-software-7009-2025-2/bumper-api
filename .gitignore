@@ -31,3 +31,13 @@ build/
 
 ### VS Code ###
 .vscode/
+
+### LATEX ###
+**/*.aux
+**/*.log
+**/*.toc
+**/*.out
+**/*.bbl
+**/*.blg
+**/*main.run.xml
+**/*.bcf
