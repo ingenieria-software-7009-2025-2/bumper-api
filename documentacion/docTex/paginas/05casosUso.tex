@@ -167,6 +167,7 @@
     \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada
     \item \textbf{Postcondiciones:} Se registra un nuevo incidente
 \end{itemize}
+\textbf{Flujo Principal:}
 \begin{enumerate}
     \item El usuario se encuentra en la pantalla principal
     \item Selecciona ``Reportar Incidente'' desde el mapa (RF3)
@@ -175,6 +176,31 @@
     \item Sistema valida y almacena el reporte en la base de datos (RNF5)
     \item Muestra página de confirmación con código único (RF5)
 \end{enumerate}
+
+\textbf{Flujo Alternativo:}
+\begin{itemize}
+    \item Formulario Incompleto:
+    \begin{enumerate}
+        \item Sistema muestra “Por favor, llena este campo” en el espacio sin llenar
+    \end{enumerate}
+    \item Imagenes no validas:
+    \begin{enumerate}
+        \item Sistema muestra "Las imagenes no tiene el formato indicado"
+        \item Sistemea muestra los requisitos de formatos de imagen.
+    \end{enumerate}
+    \item Validacion denegada
+    \begin{enumerate}
+        \item Sistema muestra "Validación denegada, no se ha procesado su solicitud"
+    \end{enumerate}
+\end{itemize}
+
+\textbf{Flujo Excepcional:}
+\begin{itemize}
+    \item Servidor no disponible:
+    \begin{enumerate}
+        \item Sistema muestra error...
+    \end{enumerate}
+\end{itemize}
 
 % --- CASO DE USO 7: MODIFICAR INCIDENTE URBANO ---
 \subsection*{CU7: Modificar Reporte Existente}
@@ -198,6 +224,14 @@
     \begin{enumerate}
         \item Sistema bloquea cambios directos
         \item Ofrece crear nueva versión como actualización
+    \end{enumerate}
+\end{itemize}
+
+\textbf{Flujo Excepcional:}
+\begin{itemize}
+    \item Servidor no disponible:
+    \begin{enumerate}
+        \item Sistema muestra error...
     \end{enumerate}
 \end{itemize}
 
@@ -226,6 +260,14 @@
     \end{itemize}
 \end{itemize}
 
+\textbf{Flujo Excepcional:}
+\begin{itemize}
+    \item Servidor no disponible:
+    \begin{enumerate}
+        \item Sistema muestra error...
+    \end{enumerate}
+\end{itemize}
+
 % --- CASO DE USO 9: COMENTAR REPORTE ---
 \subsection*{CU9: Añadir Comentario Público}
 \textbf{Actores:} Usuario Registrado, Sistema\\
@@ -244,10 +286,23 @@
 
 \textbf{Flujo Alternativo:}
 \begin{itemize}
+    \item Comenario vacio:
+    \begin{enumerate}
+        \item Sistema muestra "El comentario esta vacio"
+        \item Ofrecer añadir contenido
+    \end{enumerate}
     \item Comentario rechazado:
     \begin{enumerate}
         \item Sistema muestra políticas de comunidad
         \item Ofrece editar el contenido
+    \end{enumerate}
+\end{itemize}
+
+\textbf{Flujo Excepcional:}
+\begin{itemize}
+    \item Servidor no disponible:
+    \begin{enumerate}
+        \item Sistema muestra error...
     \end{enumerate}
 \end{itemize}
 
@@ -271,9 +326,26 @@
 
 \textbf{Flujo Alternativo:}
 \begin{itemize}
+    \item Formulario Incompleto:
+    \begin{enumerate}
+        \item Sistema muestra “Por favor, llena este campo” en el espacio sin llenar
+    \end{enumerate}
+    \item Imagenes no validas:
+    \begin{enumerate}
+        \item Sistema muestra "Las imagenes no tiene el formato indicado"
+        \item Sistemea muestra los requisitos de formatos de imagen.
+    \end{enumerate}
     \item Solicitud rechazada:
     \begin{enumerate}
         \item Sistema manda notificación ``Actualización de estado rechazado, Incidente ? (enlace a incidente) ''
+    \end{enumerate}
+\end{itemize}
+
+\textbf{Flujo Excepcional:}
+\begin{itemize}
+    \item Servidor no disponible:
+    \begin{enumerate}
+        \item Sistema muestra error...
     \end{enumerate}
 \end{itemize}
 
@@ -291,6 +363,14 @@
     \item Sistema aumenta el número de aprobaciones de la solicitud
 \end{enumerate}
 
+\textbf{Flujo Excepcional:}
+\begin{itemize}
+    \item Servidor no disponible:
+    \begin{enumerate}
+        \item Sistema muestra error...
+    \end{enumerate}
+\end{itemize}
+
 % --- CASO DE USO 12: DISCREPAR INCIDENTE RESUELTO ---
 \subsection*{CU12: Discrepar sobre Incidente Resuelto}
 \begin{itemize}
@@ -305,7 +385,6 @@
     \item Sistema solicita en formulario de disputa: Seleccionar motivo, adjuntar foto de prueba (opcional)
     \item Se cambia el estado a En Proceso
     \item Sistema valida información del formulario, el estado cambia a No Resuelto
-     
 \end{enumerate}
 
 \textbf{Flujo Alternativo:}
@@ -313,6 +392,14 @@
     \item Solicitud de disputa rechazada:
     \begin{enumerate}
         \item Sistema manda notificación ``Disputa de Incidente Resuelto rechazada, Incidente ? (enlace a incidente) ''
+    \end{enumerate}
+\end{itemize}
+
+\textbf{Flujo Excepcional:}
+\begin{itemize}
+    \item Servidor no disponible:
+    \begin{enumerate}
+        \item Sistema muestra error...
     \end{enumerate}
 \end{itemize}
 
@@ -340,6 +427,14 @@
     \end{enumerate}
 \end{itemize}
 
+\textbf{Flujo Excepcional:}
+\begin{itemize}
+    \item Servidor no disponible:
+    \begin{enumerate}
+        \item Sistema muestra error...
+    \end{enumerate}
+\end{itemize}
+
 % --- CASO DE USO 14: Eliminar incidente ---
 \subsection*{CU14: Eliminar incidente}
 \begin{itemize}
@@ -356,5 +451,63 @@
     \item Sistema borra completamente el incidente
     \item Sistema muestra el mensaje Eliminación exitosa
 \end{enumerate}
+
+\textbf{Flujo Excepcional:}
+\begin{itemize}
+    \item Servidor no disponible:
+    \begin{enumerate}
+        \item Sistema muestra error...
+    \end{enumerate}
+\end{itemize}
+
+% --- CASO DE USO 15: Compartir incidente ---
+\subsection*{CU15: Compartir incidente}
+\begin{itemize}
+    \item \textbf{Actores:} Ciudadano, Sistema
+    \item \textbf{Precondiciones:} El usario tiene su sesión iniciada y se ha reportado al menos un incidente.
+    \iem \textbf{Postcondiciones:} El incidente es compartido exitosamente con los destinatarios elegidos por el usuario.
+\end{itemize}
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item Usario selecciona el apartado de Incidentes o Mis Incidentes
+    \item Sistema muestra pantalla con los incidentes
+    \item Se visualiza un boton llamado compartir
+    \item Usario presiona el boton llamado compartir
+    \item Se ofrece las opciones de compartir:
+    \begin{itemize}
+        \item Redes sociales (Facebook, Twitter, etc.)
+        \item Correo electrónico (Gmail, Outlook, etc.)
+        \item Enlace directo (copiar enlace)
+    \end{itemize}
+    \item El usuario elige uno de los métodos de compartición disponibles.
+    \item Si elige red social, el sistema redirige a la platafroma correspondiente con un mensaje preconfigurado(incluye una descripción y URL).
+    \item Si elige correo electrónico, el sistema abre una ventana con el servicio de correo correspondiente con el asubnto correspondiente y el contenido preconfiguradoincluye una descripción y URL).
+    \item Si se elige el enlace directo, el sistema genera un enlace único al incidente que puede ser copiado por el usuario.
+\end{enumerate}
+
+\textbf{Flujo Alternativo:}
+\begin{itemize}
+    \item Red Social no Disponible:
+    \begin{enumerate}
+        \item El sistema detecta que no puede completar la acción
+        \item El sistema muestra un mensaj "La red social seleccionada no está disponible en ese momento"
+        \item Sugiere el sistema utilizar alguna de las otras opciones de compartir
+    \end{enumerate}
+    \item Correo no enviado correctamente:
+    \begin{enumerate}
+        \item El sistema detecta que el cliente de correo no se pudo abrir correctamente
+        \item El sistema muestra un mensaje "El cliente de correos no está disponible en ese momento"
+        \item Sugiere el sistema utilizar alguna de las otras opciones de compartir
+    \end{enumerate}
+\end{itemize}
+
+\textbf{Flujo Excepcional:}
+\begin{itemize}
+    \item Servidor no disponible:
+    \begin{enumerate}
+        \item Sistema muestra error...
+    \end{enumerate}
+\end{itemize}
+
 
 \end{multicols}
