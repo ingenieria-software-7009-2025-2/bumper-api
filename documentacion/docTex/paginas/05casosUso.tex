@@ -21,15 +21,15 @@
 \begin{itemize}
     \item Formulario incompleto:
     \begin{enumerate}
-        \item Sistema muestra ``Por favor, llena este campo'' en el espacio sin llenar
+        \item Sistema muestra "Por favor, llena este campo" en el espacio sin llenar
     \end{enumerate}
     \item Formato de correo invalido:
     \begin{enumerate}
-        \item Sistema muestra ``Correo invalido''
+        \item Sistema muestra "Correo invalido"
     \end{enumerate}
     \item Correo ya registrado:
     \begin{enumerate}
-        \item Sistema muestra ``Error al registrar el usuario''
+        \item Sistema muestra "Error al registrar el usuario"
     \end{enumerate}
 \end{itemize}
 
@@ -37,7 +37,7 @@
 \begin{itemize}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error ...
+        \item Sistema muestra error "Error en la solicitud" 
     \end{enumerate}
 \end{itemize}
 
@@ -74,7 +74,7 @@
 \begin{itemize}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error ...
+        \item Sistema muestra error "Error en la solicitud"
     \end{enumerate}
 \end{itemize}
 
@@ -87,31 +87,39 @@
 \end{itemize}
 \textbf{Flujo Principal:}
 \begin{enumerate}
-    \item Usuario accede al apartado ``Perfil''
+    \item Usuario accede al apartado "Perfil"
     \item Sistema muestra un apartado con campos que contienen la información del usuario
     \item El usuario modifica los datos de alguno de los campos
     \item El sistema valida la información y actualiza
-    \item El sistema muestra mensaje: ``Cambios guardados correctamente''
+    \item El sistema muestra mensaje: "Cambios guardados correctamente"
 \end{enumerate}
 
 \textbf{Flujo Alternativo:}
 \begin{itemize}
     \item La nueva información es invalida:
     \begin{enumerate}
-        \item Sistema muestra mensaje de error
+        \item Sistema muestra "Cambios invalidos. Vuelva a intentarlo"
     \end{enumerate}
 \end{itemize}
 
 \textbf{Flujo Excepcional:}
 \begin{itemize}
+    \item Datos no disponibles:
+    \begin{enumerate}
+        \item Sistema muestra error "Error al recuperar los datos del usuario"
+    \end{enumerate}
+    \item Incidentes no disponibles:
+    \begin{enumerate}
+        \item Sistema muestra error "Error al cargar los incidentes"
+    \end{enumerate}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al procesar solicitud"
     \end{enumerate}
 \end{itemize}
 
 % --- CASO DE USO 4: CONSULTAR INFORMACIÖN USUARIO ---
-\subsection*{CU4: Consultar información del      Usuario}
+\subsection*{CU4: Consultar información del Usuario}
 \begin{itemize}
     \item \textbf{Actores:} Ciudadano, Sistema
     \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada
@@ -119,7 +127,7 @@
 \end{itemize}
 \textbf{Flujo Principal:}
 \begin{enumerate}
-    \item Usuario accede al apartado ``Perfil''
+    \item Usuario accede al apartado "Perfil"
     \item Sistema muestra un apartado con campos que contienen la información del usuario y un aparatado llamado ``Incidentes Reportados'' con los incidente reportados por el usuario
 \end{enumerate}
 
@@ -127,15 +135,19 @@
 \begin{itemize}
     \item El usuario no ha reportado incidentes:
     \begin{enumerate}
-        \item Sistema muestra dentro del apartado ``Incidentes Reportados'' el mensaje ``No hay incidentes reportados aún'' 
+        \item Sistema muestra dentro del apartado "Incidentes Reportados" el mensaje "No hay incidentes reportados aún" 
     \end{enumerate}
 \end{itemize}
 
 \textbf{Flujo Excepcional:}
 \begin{itemize}
-    \item Servidor no disponible:
+    \item Datos no disponibles:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al recuperar los datos del usuario"
+    \end{enumerate}
+    \item Incidentes no disponibles:
+    \begin{enumerate}
+        \item Sistema muestra error "Error al cargar los incidentes"
     \end{enumerate}
 \end{itemize}
 
@@ -156,7 +168,7 @@
 \begin{itemize}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al cerrar sesión"
     \end{enumerate}
 \end{itemize}
 
@@ -170,7 +182,7 @@
 \textbf{Flujo Principal:}
 \begin{enumerate}
     \item El usuario se encuentra en la pantalla principal
-    \item Selecciona ``Reportar Incidente'' desde el mapa (RF3)
+    \item Selecciona "Reportar Incidente" desde el mapa (RF3)
     \item Establece ubicación mediante alguno de los métodos: geolocalización asistida (RNF2), formulario, selección en el mapa
     \item Completa formulario de descripción con: categoría, título, descripción y fotos (RF2)
     \item Sistema valida y almacena el reporte en la base de datos (RNF5)
@@ -196,10 +208,18 @@
 
 \textbf{Flujo Excepcional:}
 \begin{itemize}
-    \item Servidor no disponible:
+    \item Incidentes no disponibles:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra "Error al cargar incidentes"
     \end{enumerate}
+    \item Datos de usuario no disponibles:
+    \begin{itemize}
+        \item Sistema muestra "Error al cargar datos de usario"
+    \end{itemize}
+    \item Servidor no disponible:
+    \begin{itemize}
+        \item Sistema muestra "Error al reportar incidente"
+    \end{itemize}
 \end{itemize}
 
 % --- CASO DE USO 7: MODIFICAR INCIDENTE URBANO ---
@@ -229,9 +249,17 @@
 
 \textbf{Flujo Excepcional:}
 \begin{itemize}
+    \item Incidentes no disponibles:
+    \begin{enumerate}
+        \item Sistema muestra "Error al cargar incidentes"
+    \end{enumerate}
+    \item Datos de usuario no disponibles:
+    \begin{itemize}
+        \item Sistema muestra "Error al cargar datos de usario"
+    \end{itemize}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al procesar solicitud"
     \end{enumerate}
 \end{itemize}
 
@@ -264,7 +292,7 @@
 \begin{itemize}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al cargar el mapa"
     \end{enumerate}
 \end{itemize}
 
@@ -300,9 +328,13 @@
 
 \textbf{Flujo Excepcional:}
 \begin{itemize}
+    \item Incidentes no disponibles:
+    \begin{itemize}
+        \item Sistema muestra error "Error al cargar los incidentes"
+    \end{itemize}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al procesar la solicitud"
     \end{enumerate}
 \end{itemize}
 
@@ -337,15 +369,19 @@
     \end{enumerate}
     \item Solicitud rechazada:
     \begin{enumerate}
-        \item Sistema manda notificación ``Actualización de estado rechazado, Incidente ? (enlace a incidente) ''
+        \item Sistema manda notificación "Actualización de estado rechazado, Incidente ? (enlace a incidente)"
     \end{enumerate}
 \end{itemize}
 
 \textbf{Flujo Excepcional:}
 \begin{itemize}
+    \item Incidentes no disponibles:
+    \begin{enumerate}
+        \item Sisteam muestra error "Error al cargar incidentes"
+    \end{enumerate}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al procesar solicitud"
     \end{enumerate}
 \end{itemize}
 
@@ -365,9 +401,13 @@
 
 \textbf{Flujo Excepcional:}
 \begin{itemize}
+    \item Incidentes no disponibles:
+    \begin{enumerate}
+        \item Sisteam muestra error "Error al cargar incidentes"
+    \end{enumerate}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al procesar solicitud"
     \end{enumerate}
 \end{itemize}
 
@@ -397,9 +437,13 @@
 
 \textbf{Flujo Excepcional:}
 \begin{itemize}
+    \item Incidentes no disponibles:
+    \begin{enumerate}
+        \item Sisteam muestra error "Error al cargar incidentes"
+    \end{enumerate}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al procesar solicitud"
     \end{enumerate}
 \end{itemize}
 
@@ -431,7 +475,7 @@
 \begin{itemize}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al mostrar notificaciones"
     \end{enumerate}
 \end{itemize}
 
@@ -454,9 +498,13 @@
 
 \textbf{Flujo Excepcional:}
 \begin{itemize}
+    \item Incidentes no disponibles:
+    \begin{enumerate}
+        \item Sisteam muestra error "Error al cargar incidentes"
+    \end{enumerate}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al procesar solicitud"
     \end{enumerate}
 \end{itemize}
 
@@ -465,49 +513,73 @@
 \begin{itemize}
     \item \textbf{Actores:} Ciudadano, Sistema
     \item \textbf{Precondiciones:} El usario tiene su sesión iniciada y se ha reportado al menos un incidente.
-    \iem \textbf{Postcondiciones:} El incidente es compartido exitosamente con los destinatarios elegidos por el usuario.
+    \item \textbf{Postcondiciones:} El incidente es compartido exitosamente con los destinatarios elegidos por el usuario.
 \end{itemize}
 \textbf{Flujo Principal:}
 \begin{enumerate}
     \item Usario selecciona el apartado de Incidentes o Mis Incidentes
     \item Sistema muestra pantalla con los incidentes
-    \item Se visualiza un boton llamado compartir
-    \item Usario presiona el boton llamado compartir
-    \item Se ofrece las opciones de compartir:
-    \begin{itemize}
-        \item Redes sociales (Facebook, Twitter, etc.)
-        \item Correo electrónico (Gmail, Outlook, etc.)
-        \item Enlace directo (copiar enlace)
-    \end{itemize}
-    \item El usuario elige uno de los métodos de compartición disponibles.
-    \item Si elige red social, el sistema redirige a la platafroma correspondiente con un mensaje preconfigurado(incluye una descripción y URL).
-    \item Si elige correo electrónico, el sistema abre una ventana con el servicio de correo correspondiente con el asubnto correspondiente y el contenido preconfiguradoincluye una descripción y URL).
-    \item Si se elige el enlace directo, el sistema genera un enlace único al incidente que puede ser copiado por el usuario.
+    \item Usario selecciona un incidente en especifico
+    \item Se visualiza un boton llamado "Compartir"
+    \item Usario presiona el boton llamado "Compartir"
+    \item El sistema genera un enlace único al incidente que puede ser copiado por el usuario.
 \end{enumerate}
 
-\textbf{Flujo Alternativo:}
-\begin{itemize}
-    \item Red Social no Disponible:
-    \begin{enumerate}
-        \item El sistema detecta que no puede completar la acción
-        \item El sistema muestra un mensaj "La red social seleccionada no está disponible en ese momento"
-        \item Sugiere el sistema utilizar alguna de las otras opciones de compartir
-    \end{enumerate}
-    \item Correo no enviado correctamente:
-    \begin{enumerate}
-        \item El sistema detecta que el cliente de correo no se pudo abrir correctamente
-        \item El sistema muestra un mensaje "El cliente de correos no está disponible en ese momento"
-        \item Sugiere el sistema utilizar alguna de las otras opciones de compartir
-    \end{enumerate}
-\end{itemize}
 
 \textbf{Flujo Excepcional:}
 \begin{itemize}
     \item Servidor no disponible:
     \begin{enumerate}
-        \item Sistema muestra error...
+        \item Sistema muestra error "Error al compartir el incidente"
     \end{enumerate}
 \end{itemize}
 
+% --- CASO DE USO 16: Aportar Información ---
+\subsection*{CU16: Aportar Información}
+\begin{itemize}
+    \item \textbf{Actores:} Ciudadano, Sistema
+    \item \textbf{Precondciones:} El usario tiene su sesión iniciada y se ha reportado al mneos un incidente.
+    \item \textbf{Postcondiciones:} El incidente tiene nuevas fotos o videos adicionales con un comentario contexttual.
+\end{itemize}
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item Usuario selecciona el apartado de Incidentes
+    \item Sistema muestra pantalla con los incidentes
+    \item Usario selecciona un incidente en especifico
+    \item Se visualiza el boton llamado "Añadir Pruebas"
+    \item Usario presiona el boton llamado "Añadir Purbeas"
+    \item Sistema solicita en formulario: Subir 1+fotos de evidencia y descripción
+    \item El sistema guarda los archivos y el comentario.
+    \item Los nuevos archivos se muestran en la galería del caso, etiquetados como "Contribución comunitaria".
+\end{enumerate}
+
+\textbf{Flujo alternativo:}
+\begin{itemize}
+    \item Formulario Incompleto:
+    \begin{enumerate}
+        \item Sistema muestra “Por favor, llena este campo” en el espacio sin llenar
+    \end{enumerate}
+    \item Imagenes no validas:
+    \begin{enumerate}
+        \item Sistema muestra "Las imagenes no tiene el formato indicado"
+        \item Sistemea muestra los requisitos de formatos de imagen.
+    \end{enumerate}
+    \item Solicitud rechazada:
+    \begin{enumerate}
+        \item Sistema manda notificación "Informacion rechazada. Volver a intentarlo"
+    \end{enumerate}
+\end{itemize}
+
+\textbf{Flujo Excepcional:}
+\begin{itemize}
+    \item Incidentes no disponibles:
+    \begin{enumerate}
+        \item Sistema muestra error "Error al cargar incidentes"
+    \end{enumerate}
+    \item Servidor no disponible:
+    \begin{enumerate}
+        \item Sistema muestra "Error al procesar solicitud"
+    \end{enumerate}
+\end{itemize}
 
 \end{multicols}
