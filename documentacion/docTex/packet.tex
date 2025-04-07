@@ -1,0 +1,186 @@
+%---------------------------- COMANDOS PORTADA ------------------/
+%---------------------------------------------------------------/
+%\newcommand*{\nombre}{Marco Silva Huerta}
+\newcommand*{\fecha}{06 de Abril de 2025}
+\newcommand*{\semestre}{2025-2}
+%\newcommand*{\id}{0000000}
+\newcommand*{\nombreTarea}{Especificación de Requerimientos}
+%\newcommand*{\subtitulo}{}
+%---------------------------- COMANDOS PORTADA ----------------\
+%---------------------------------------------------------------\
+
+
+%-----------------------------------INICIO DE PACKETES-------------------/
+%-----------------------------------------------------------------------/
+\usepackage{amsmath}   % Matemáticas: Comandos extras(cajas ecuaciones) |
+\usepackage{amsthm}
+\usepackage{amssymb}   % Matemáticas: Símbolos matemáticos              |
+\usepackage{datetime}  % Agregar fechas                                 |
+\usepackage{graphicx}  % Insertar Imágenes                              |
+\usepackage{multicol}  % Creación de tablas                             |
+\usepackage{longtable} % Tablas más largas                              |
+\usepackage{xcolor}    % Permite cambiar colores del texto              |
+\usepackage{tcolorbox} % Cajas de color                                 |
+\usepackage{setspace}  % Usar espacios                                  |
+\usepackage{fancyhdr}  % Para agregar encabezado y pie de página        |
+\usepackage{lastpage}  %                                                |
+\usepackage{float}     % Flotantes                                      |
+\usepackage{soul}      % "Efectos" en palabras                          |
+\usepackage{hyperref}  % Para usar hipervínculos                        |
+\usepackage{caption}   % Utilizar las referencias                       |
+\usepackage{subcaption} % Poder usar subfiguras                         |
+\usepackage{multirow}  % Nos permite modificar tablas                   |
+\usepackage{array}     % Permite utilizar los valores para multicolumn  |
+\usepackage{booktabs}  % Permite modificar tablas                       |
+\usepackage{diagbox}   % Diagonales para las tablas                     |
+\usepackage{colortbl}  % Color para tablas                              |
+%\usepackage{listings}  % Escribir código                               |
+\usepackage{mathtools} % SIMBOLO :=                                     |
+\usepackage{enumitem}  % Modificar items de Listas                      |
+\usepackage{tikz}      %                                                |
+\usepackage{lipsum}    % for auto generating text                       |
+\usepackage{afterpage} % for "\afterpage"s                              |
+\usepackage{pagecolor} % With option pagecolor={somecolor or none}|     |
+\usepackage{xpatch}    % Color de lineas C & F                          |
+%\usepackage{glossaries} %                                              |
+\usepackage{lastpage}  %                                                |
+\usepackage{csquotes}  %                                                | 
+\usepackage{array} % Paquete para definir el ancho de las columnas
+%-----------------------------------------------------------------------\
+%-----------------------------------FIN--- DE PACKETES-------------------\
+
+\usepackage{minted}
+\usepackage{fancyvrb}
+\usepackage{fontawesome5}
+
+%----------------------------------------------------------------------/
+%-------------------Encabezado y Pie de Pagina-----------------------/ |
+%--------------------------------------------------------------------\ |
+%\fancyhf{}           %                                                |
+%\pagestyle{fancy}
+
+\fancypagestyle{firstpage}{  
+    \fancyhead[L]{}
+    \fancyhead[R]{}     
+    \fancyfoot[L]{Equipo:\textsc{Bumper}}
+    \fancyfoot[C]{}
+    \fancyfoot[R]{\thepage\ de \pageref*{LastPage}}    
+    \renewcommand{\headrulewidth}{0pt} 
+    \xpretocmd\headrule{}{}{\PatchFailed}
+}
+
+\fancypagestyle{fancy}{  
+
+    \fancyhead[L]{Requerimientos}
+    \fancyhead[R]{}     
+
+    \fancyfoot[L]{Equipo:\textsc{Bumper}}
+    \fancyfoot[C]{}
+    \fancyfoot[R]{\thepage\ de \pageref*{LastPage}}
+
+    \renewcommand{\headrulewidth}{1pt} 
+    \xpretocmd\headrule{}{}{\PatchFailed}
+    \renewcommand{\footrulewidth}{1.5pt} 
+    \xpretocmd\footrule{}{}{\PatchFailed}
+}
+
+%--------------------------------------------------------------------\ |
+%-------------------Encabezado y Pie de Pagina-----------------------/ |
+%------------------------------------------------------------FIN----/
+
+
+% Estilos para los cuadros
+\tcbset{
+    endpoint/.style={
+        colframe=methodColor,
+        colback=methodColor!10,
+        fonttitle=\bfseries\color{white},
+        title=Endpoint
+    },
+    request/.style={
+        colframe=urlColor,
+        colback=urlColor!10,
+        fonttitle=\bfseries\color{white},
+        title=Request
+    },
+    response/.style={
+        colframe=successColor,
+        colback=successColor!10,
+        fonttitle=\bfseries\color{white},
+        title=Response
+    },
+    notes/.style={
+        colframe=noteColor,
+        colback=noteColor!10,
+        fonttitle=\bfseries\color{white},
+        title=Notas
+    }
+}
+
+\usepackage{tikz,times}
+\usepackage{verbatim}
+\usetikzlibrary{mindmap,trees,backgrounds}
+
+%--------------------------------------------------------------------/
+%------------------- LISTA DE COLORES ------------------------------/ 
+\definecolor{ProcessBlue}{RGB}{0,176,240}
+\definecolor{NavyBlue}{RGB}{0,110,184}
+\definecolor{Cyan}{RGB}{0,174,239}
+\definecolor{MidnightBlue}{RGB}{0,103,49}
+\definecolor{ForestGreen}{RGB}{0,155,85}
+\definecolor{Goldenrod}{RGB}{255,223,66}
+\definecolor{YellowGreen}{RGB}{152,204,112}
+\definecolor{Sepia}{RGB}{103,24,0}
+\definecolor{Peach}{RGB}{247,150,90}
+\definecolor{CarnationPink}{RGB}{242,130,180}
+\definecolor{Fuchsia}{RGB}{140,54,140}
+\definecolor{WildStrawberry}{RGB}{238,41,103}
+
+\definecolor{Grass}{RGB}{41,238,53}
+\definecolor{Meadow}{RGB}{6,243,67}
+\definecolor{jellyfish}{RGB}{109,14,130}
+\definecolor{rubber}{RGB}{229,27,232}
+\definecolor{bullet}{RGB}{225,31,90}
+\definecolor{midnight}{RGB}{31,90,225}
+\definecolor{sun}{RGB}{241,152,7}
+\definecolor{water}{RGB}{16,229,183}
+
+%------------------- COLORES CÓDIGO -------------------- |
+
+%------------------- COLORES JAVA ---------------------- |
+\definecolor{backcolour}{RGB}{6,6,6} 
+%\definecolor{backcolour}{RGB}{181,181,181} 
+\definecolor{codeclassjava}{RGB}{246,113,59}
+\definecolor{codegreen}{RGB}{17,225,48}
+\definecolor{codenumizq}{RGB}{17,17,17}
+\definecolor{codestringjava}{RGB}{51,240,234}
+\definecolor{codesymboljava}{RGB}{255,5,0} 
+\definecolor{yellowpoint}{RGB}{244,235,100} 
+%------------------- COLORES JAVA ---------------------- |
+
+
+%------------------- COLORES PYTHON -------------------- |
+\definecolor{backcolourPY}{RGB}{6,6,6} 
+%\definecolor{backcolour}{RGB}{181,181,181} 
+\definecolor{codegreenPY}{RGB}{17,225,48}
+\definecolor{codeclassPY}{RGB}{246,113,59}
+\definecolor{codenumizq}{RGB}{17,17,17}
+\definecolor{codestringPY}{RGB}{90,128,220}
+\definecolor{codesymboljava}{RGB}{255,5,0} 
+%------------------- COLORES PYTHON -------------------- |
+
+
+%------------------- COLORES CÓDIGO -------------------- |
+
+%------------------- LISTA DE COLORES -------------------------------\
+%---------------------------------------------------------------------\
+
+
+
+% Definición de colores
+\definecolor{methodColor}{HTML}{2E86C1}
+\definecolor{urlColor}{HTML}{27AE60}
+\definecolor{successColor}{HTML}{2ECC71}
+\definecolor{errorColor}{HTML}{E74C3C}
+\definecolor{headerColor}{HTML}{F39C12}
+\definecolor{noteColor}{HTML}{BDC3C7}
