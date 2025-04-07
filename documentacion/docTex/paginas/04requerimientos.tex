@@ -1,40 +1,38 @@
 \section{Requerimientos}
 
-\subsection*{Funcionales}
+\subsection*{Requerimientos Funcionales}
 
 \begin{enumerate}
     \item \textbf{Autenticación de Usuarios (RF1)}
     \begin{itemize}
-        \item Registro y acceso con email y contraseña.        
-        \item Niveles de acceso: Ciudadano y Administrador (E)
+        \item El usuario puede registrarse e iniciar sesión con un correo electrónico y contraseña.
+        \item Solo los usuarios autenticados pueden crear y modificar reportes.
     \end{itemize}
 
     \item \textbf{Gestión de Incidentes (RF2)}
     \begin{itemize}
-        \item Usuario puede crear, editar y eliminar reportes.
-        \item Verificar datos (las imágenes se suben correctamente)
-        \item Sistema de etiquetas para hacer filtros más sencillos.
+        \item El usuario puede crear un reporte con ubicación, tipo de incidente, descripción y hasta 3 fotos.
+        \item El usuario creador puede actualizar el estatus del reporte (``No resuelto'', ``En proceso'', ``Resuelto'').
+        \item Los reportes incluyen un código único para seguimiento.
     \end{itemize}
 
-    \item \textbf{Integración con Mapa en Tiempo Real (RF3)}
+    \item \textbf{Integración con Mapa Interactivo (RF3)}
     \begin{itemize}
-        \item Importar API para visualizar e interactuar con el mapa.
-        \item Manipulación visual para añadir items dentro del mapa.
-        \item Geolocalización automática. (E)
+        \item El usuario visualiza un mapa con marcadores de incidentes existentes.
+        \item El usuario puede marcar una ubicación en el mapa al crear un reporte, con opción de escribir una dirección.
+        \item El mapa permite zoom y arrastre para explorar áreas.
     \end{itemize}
 
-    \item \textbf{Filtro (RF4)}
+    \item \textbf{Filtrado de Incidentes (RF4)}
     \begin{itemize}
-        \item Búsqueda por palabras clave, categoría y rango de fechas.        
+        \item El usuario puede filtrar incidentes en el mapa por estatus (``Todos'', ``No resuelto'', etc.) y tipo de incidente (e.g., Bache, Basura).
     \end{itemize}
 
-    \item \textbf{Visualización de Datos (RF5)}
+    \item \textbf{Visualización de Información (RF5)}
     \begin{itemize}
-        \item Pantalla principal.
-        \item Pantalla login.
-        \item Pantalla crear incidente.
-        \item Pantalla editar incidente.
-        \item Pantalla filtrar incidentes.
+        \item El usuario ve una pantalla principal con el mapa y un botón para reportar.
+        \item Al hacer clic en un marcador, se muestra una ventana con fotos, estatus y tipo de incidente.
+        \item Una barra lateral ofrece el formulario para crear reportes y opciones de filtrado.
     \end{itemize}
 \end{enumerate}
 
@@ -43,31 +41,30 @@
 \begin{enumerate}
     \item \textbf{Seguridad (RNF1)}
     \begin{itemize}
-        \item Seguridad en el registro de contraseñas y correos.
-        \item Proteger los datos de los usuarios. (E)        
+        \item Las contraseñas y correos de los usuarios están protegidos con cifrado.
+        \item Solo el creador puede modificar su reporte, garantizando control de acceso.
     \end{itemize}
 
     \item \textbf{Rendimiento (RNF2)}
     \begin{itemize}
-        \item Buscar optimización del mapa para cargar y manipularlo con baja latencia
-        \item Implementación para soportar registros simultáneos.
+        \item El mapa carga rápidamente y responde con baja latencia al interactuar.
+        \item La aplicación soporta múltiples usuarios creando reportes al mismo tiempo.
     \end{itemize}
 
     \item \textbf{Disponibilidad (RNF3)}
     \begin{itemize}
-        \item Solución local.
-        \item Buscar un host sencillo.  (E)
+        \item La solución funciona inicialmente en un entorno local o en un servidor básico.
     \end{itemize}
 
     \item \textbf{Usabilidad (RNF4)}
     \begin{itemize}
-        \item Interfaz responsiva.
-        \item Diseño intuitivo.
+        \item La interfaz se adapta a diferentes dispositivos (móviles y escritorio).
+        \item El diseño es claro, con navegación sencilla y acciones intuitivas.
     \end{itemize}
 
     \item \textbf{Escalabilidad (RNF5)}
     \begin{itemize}
-        \item Arquitectura modular.
-        \item Base de datos escalable.
+        \item La aplicación permite añadir nuevas funcionalidades sin rediseños complejos.
+        \item El almacenamiento de datos y fotos puede crecer según la demanda.
     \end{itemize}
 \end{enumerate}

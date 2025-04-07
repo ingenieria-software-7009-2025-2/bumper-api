@@ -1,585 +1,106 @@
 \section{Casos de Uso}
 
-\begin{multicols}{2}
-
-% --- CASO DE USO 1: REGISTRO USUARIO ---
-\subsection*{CU1: Registro de Usuario}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usuario no se encuentra registrado
-    \item \textbf{Postcondiciones:} El usuario es registrado y puede iniciar sesión con sus credenciales
-\end{itemize}
+\subsection*{CU1: Hacer Login}
+\textbf{Actores:} Usuario, Sistema\\
 \textbf{Flujo Principal:}
 \begin{enumerate}
-    \item Usuario accede a la página de registro (RF1)
-    \item Ingresa datos del formulario: nombre, apellido, correo y contraseña
-    \item Sistema valida la información: completa y el correo no se encuentra registrado 
-    \item Redirección al dashboard principal (RNF4)
+    \item El usuario accede a la página de inicio de sesión. (RF1)
+    \item Ingresa su correo electrónico y contraseña.
+    \item El sistema verifica las credenciales.
+    \item Si las credenciales son correctas, el usuario es redirigido al mapa principal. (RF5)
 \end{enumerate}
-
 \textbf{Flujo Alternativo:}
 \begin{itemize}
-    \item Formulario incompleto:
+    \item \textit{Credenciales incorrectas:}
     \begin{enumerate}
-        \item Sistema muestra "Por favor, llena este campo" en el espacio sin llenar
-    \end{enumerate}
-    \item Formato de correo invalido:
-    \begin{enumerate}
-        \item Sistema muestra "Correo invalido"
-    \end{enumerate}
-    \item Correo ya registrado:
-    \begin{enumerate}
-        \item Sistema muestra "Error al registrar el usuario"
+        \item El sistema muestra un mensaje de error indicando que las credenciales no son válidas.
+        \item Ofrece un enlace para recuperar la contraseña por correo.
     \end{enumerate}
 \end{itemize}
 
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error en la solicitud" 
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 2: HACER LOGIN ---
-\subsection*{CU2: Iniciar Sesión}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usuario se encuentra registrado 
-    \item \textbf{Postcondiciones:} El usuario accede a la página
-\end{itemize}
+\subsection*{CU2: Ingreso del Usuario}
+\textbf{Actores:} Ciudadano, Sistema\\
 \textbf{Flujo Principal:}
 \begin{enumerate}
-    \item Usuario accede a la página de login (RF1)
-    \item Ingresa email y contraseña registrados
-    \item Sistema verifica credenciales en base de datos (RNF1)
-    \item Redirección al dashboard principal (RNF4)
+    \item El usuario accede a la página de inicio de sesión. (RF1)
+    \item Ingresa su correo electrónico y contraseña.
+    \item El sistema verifica las credenciales.
+    \item El usuario es redirigido al mapa principal. (RF5)
 \end{enumerate}
-
 \textbf{Flujo Alternativo:}
 \begin{itemize}
-    \item Credenciales incorrectas:
+    \item \textit{Credenciales incorrectas:}
     \begin{enumerate}
-        \item Sistema muestra error específico
-        \item Ofrece recuperación de contraseña vía email
-    \end{enumerate}
-    \item Cuenta no verificada:
-    \begin{enumerate}
-        \item Sistema bloquea acceso
-        \item Reenvía enlace de verificación
+        \item El sistema muestra un mensaje de error.
+        \item Ofrece un enlace para recuperar la contraseña por correo.
     \end{enumerate}
 \end{itemize}
 
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error en la solicitud"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 3: ACTUALIZAR DATOS USUARIO ---
-\subsection*{CU3: Actualizar datos de Usuario}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada
-    \item \textbf{Postcondiciones:} Los datos del usuario han sido modificados
-\end{itemize}
+\subsection*{CU3: Reportar Incidente Urbano}
+\textbf{Actores:} Ciudadano, Sistema\\
 \textbf{Flujo Principal:}
 \begin{enumerate}
-    \item Usuario accede al apartado "Perfil"
-    \item Sistema muestra un apartado con campos que contienen la información del usuario
-    \item El usuario modifica los datos de alguno de los campos
-    \item El sistema valida la información y actualiza
-    \item El sistema muestra mensaje: "Cambios guardados correctamente"
+    \item El usuario inicia sesión. (RF1)
+    \item Hace clic en ``Reportar Incidente'' desde el mapa principal. (RF3)
+    \item Marca la ubicación en el mapa o escribe una dirección. (RF3)
+    \item Completa un formulario con tipo de incidente, descripción y hasta 3 fotos. (RF2)
+    \item Confirma el reporte tras ver una vista previa.
+    \item El sistema muestra el reporte en el mapa con un código único. (RF5)
 \end{enumerate}
-
 \textbf{Flujo Alternativo:}
 \begin{itemize}
-    \item La nueva información es invalida:
+    \item \textit{Sin inicio de sesión:}
     \begin{enumerate}
-        \item Sistema muestra "Cambios invalidos. Vuelva a intentarlo"
+        \item El sistema redirige al usuario a la página de inicio de sesión antes de continuar.
     \end{enumerate}
 \end{itemize}
 
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Datos no disponibles:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al recuperar los datos del usuario"
-    \end{enumerate}
-    \item Incidentes no disponibles:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al cargar los incidentes"
-    \end{enumerate}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al procesar solicitud"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 4: CONSULTAR INFORMACIÖN USUARIO ---
-\subsection*{CU4: Consultar información del Usuario}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada
-    \item \textbf{Postcondiciones:} Se muestran los datos del propio usuario y sus reportes realizados.
-\end{itemize}
+\subsection*{CU4: Modificar Estatus de Reporte}
+\textbf{Actores:} Ciudadano (creador del reporte), Sistema\\
 \textbf{Flujo Principal:}
 \begin{enumerate}
-    \item Usuario accede al apartado "Perfil"
-    \item Sistema muestra un apartado con campos que contienen la información del usuario y un aparatado llamado ``Incidentes Reportados'' con los incidente reportados por el usuario
+    \item El usuario inicia sesión y selecciona uno de sus reportes en el mapa. (RF2)
+    \item Abre la ventana del reporte y elige un nuevo estatus (``En proceso'' o ``Resuelto''). (RF2)
+    \item Confirma el cambio.
+    \item El sistema actualiza el estatus y muestra la versión modificada en el mapa. (RF5)
 \end{enumerate}
-
 \textbf{Flujo Alternativo:}
 \begin{itemize}
-    \item El usuario no ha reportado incidentes:
+    \item \textit{Usuario no creador:}
     \begin{enumerate}
-        \item Sistema muestra dentro del apartado "Incidentes Reportados" el mensaje "No hay incidentes reportados aún" 
+        \item El sistema no muestra opciones de edición y limita la interacción a solo visualización.
     \end{enumerate}
 \end{itemize}
 
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Datos no disponibles:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al recuperar los datos del usuario"
-    \end{enumerate}
-    \item Incidentes no disponibles:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al cargar los incidentes"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 5: CERRAR SESIÓN ---
-\subsection*{CU5: Cerrar Sesión}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada
-    \item \textbf{Postcondiciones:} El usuario cierra su sesión, vuelve a la pantalla de login
-\end{itemize}
+\subsection*{CU5: Explorar Incidentes en Mapa}
+\textbf{Actores:} Usuario (registrado o invitado), Sistema\\
 \textbf{Flujo Principal:}
 \begin{enumerate}
-    \item Usuario presiona en el apartado ``Cerrar Sesión''
-    \item El sistema cierra sesión, reenvia a la pantalla de login
+    \item El usuario accede al mapa principal y ve los marcadores de incidentes. (RF3)
+    \item Usa filtros en la barra lateral para mostrar incidentes por estatus o tipo. (RF4)
+    \item Hace clic en un marcador para ver detalles.
+    \item El sistema muestra una ventana con fotos, estatus y tipo de incidente. (RF5)
 \end{enumerate}
-
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al cerrar sesión"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 6: REPORTAR INCIDENTE ---
-\subsection*{CU6: Reportar Incidente Urbano}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada
-    \item \textbf{Postcondiciones:} Se registra un nuevo incidente
-\end{itemize}
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item El usuario se encuentra en la pantalla principal
-    \item Selecciona "Reportar Incidente" desde el mapa (RF3)
-    \item Establece ubicación mediante alguno de los métodos: geolocalización asistida (RNF2), formulario, selección en el mapa
-    \item Completa formulario de descripción con: categoría, título, descripción y fotos (RF2)
-    \item Sistema valida y almacena el reporte en la base de datos (RNF5)
-    \item Muestra página de confirmación con código único (RF5)
-\end{enumerate}
-
 \textbf{Flujo Alternativo:}
 \begin{itemize}
-    \item Formulario Incompleto:
+    \item \textit{Filtros sin resultados:}
     \begin{enumerate}
-        \item Sistema muestra “Por favor, llena este campo” en el espacio sin llenar
-    \end{enumerate}
-    \item Imagenes no validas:
-    \begin{enumerate}
-        \item Sistema muestra "Las imagenes no tiene el formato indicado"
-        \item Sistemea muestra los requisitos de formatos de imagen.
-    \end{enumerate}
-    \item Validacion denegada
-    \begin{enumerate}
-        \item Sistema muestra "Validación denegada, no se ha procesado su solicitud"
+        \item El sistema indica que no hay incidentes y sugiere ajustar los filtros.
     \end{enumerate}
 \end{itemize}
 
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Incidentes no disponibles:
-    \begin{enumerate}
-        \item Sistema muestra "Error al cargar incidentes"
-    \end{enumerate}
-    \item Datos de usuario no disponibles:
-    \begin{itemize}
-        \item Sistema muestra "Error al cargar datos de usario"
-    \end{itemize}
-    \item Servidor no disponible:
-    \begin{itemize}
-        \item Sistema muestra "Error al reportar incidente"
-    \end{itemize}
-\end{itemize}
-
-% --- CASO DE USO 7: MODIFICAR INCIDENTE URBANO ---
-\subsection*{CU7: Modificar Reporte Existente}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada
-    \item \textbf{Postcondiciones:} Información de incidente actualizada 
-\end{itemize}
+\subsection*{CU6: Cerrar Sesión}
+\textbf{Actores:} Usuario, Sistema\\
 \textbf{Flujo Principal:}
 \begin{enumerate}
-    \item Usuario accede a Mis Reportes en su perfil (RF2)
-    \item Selecciona incidente no publicado para editar
-    \item Modifica campos permitidos: descripción, fotos, etiquetas (RF2)
-    \item Sistema valida cambios y actualiza timestamp (RNF5)
-    \item Muestra versión actualizada con historial de modificaciones
+    \item El usuario hace clic en el botón de "Cerrar Sesión" desde cualquier página del sistema. (RF6)
+    \item El sistema cierra la sesión del usuario y lo redirige a la página de inicio de sesión. (RF1)
 \end{enumerate}
-
 \textbf{Flujo Alternativo:}
 \begin{itemize}
-    \item Intento de editar reporte publicado:
+    \item \textit{Error en el cierre de sesión:}
     \begin{enumerate}
-        \item Sistema bloquea cambios directos
-        \item Ofrece crear nueva versión como actualización
+        \item El sistema muestra un mensaje de error indicando que no se pudo cerrar la sesión.
+        \item El usuario puede intentar nuevamente o contactar soporte técnico.
     \end{enumerate}
 \end{itemize}
-
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Incidentes no disponibles:
-    \begin{enumerate}
-        \item Sistema muestra "Error al cargar incidentes"
-    \end{enumerate}
-    \item Datos de usuario no disponibles:
-    \begin{itemize}
-        \item Sistema muestra "Error al cargar datos de usario"
-    \end{itemize}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al procesar solicitud"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 8: INTERACCIÓN CON MAPA ---
-\subsection*{CU8: Explorar Incidentes en Mapa}
-\textbf{Actores:} Usuario (registrado/invitado), Sistema\\
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item Usuario visualiza mapa principal (RF3)
-    \item Aplica filtros por categoría/fecha (RF4)
-    \item Haz clic en marcador para ver detalle
-    \item Sistema carga pop-up con:
-    \begin{itemize}
-        \item Galería de fotos (RNF2)
-        \item Estado actualizado
-        \item Botones de interacción
-    \end{itemize}
-\end{enumerate}
-
-\textbf{Flujo Alternativo:}
-\begin{itemize}
-    \item Filtros sin resultados:
-    \begin{itemize}
-        \item Sistema sugiere ajustar parámetros
-        \item Muestra heatmap de zonas problemáticas
-    \end{itemize}
-\end{itemize}
-
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al cargar el mapa"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 9: COMENTAR REPORTE ---
-\subsection*{CU9: Añadir Comentario Público}
-\textbf{Actores:} Usuario Registrado, Sistema\\
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item Usuario selecciona incidente en mapa/listado (RF4)
-    \item Clic en Añadir Comentario
-    \item Escribe mensaje
-    \item Sistema analiza contenido (RNF1):
-    \begin{itemize}
-        \item Filtra lenguaje ofensivo
-        \item Detecta spam
-    \end{itemize}
-    \item Publica comentario
-\end{enumerate}
-
-\textbf{Flujo Alternativo:}
-\begin{itemize}
-    \item Comenario vacio:
-    \begin{enumerate}
-        \item Sistema muestra "El comentario esta vacio"
-        \item Ofrecer añadir contenido
-    \end{enumerate}
-    \item Comentario rechazado:
-    \begin{enumerate}
-        \item Sistema muestra políticas de comunidad
-        \item Ofrece editar el contenido
-    \end{enumerate}
-\end{itemize}
-
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Incidentes no disponibles:
-    \begin{itemize}
-        \item Sistema muestra error "Error al cargar los incidentes"
-    \end{itemize}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al procesar la solicitud"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 10: ACTUALIZAR ESTADO DE INCIDENTE ---
-\subsection*{CU10: Actualizar Estado de Incidente}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada
-    \item \textbf{Postcondiciones:} Cambia el estado del incidente seleccionado a Resuelto
-\end{itemize}
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item Usuario selecciona incidente en mapa/listado (RF4)
-    \item Clic en Marcar como Resuelto
-    \item Sistema solicita en formulario: Subir 1+fotos de evidencia y descripción
-    \item Se visualiza sobre el incidente, la solicitud de cambio de estado, con la opción de aprobar
-    \item Sistema en espera de concluir verificación de la solicitud, estado se encuentra En Proceso
-    \item Sistema valida solicitud, estado cambia a Resuelto
-    \item Se añade nuevo boton de interacción para discrepar: Esto no está resuelto
-\end{enumerate}
-
-\textbf{Flujo Alternativo:}
-\begin{itemize}
-    \item Formulario Incompleto:
-    \begin{enumerate}
-        \item Sistema muestra “Por favor, llena este campo” en el espacio sin llenar
-    \end{enumerate}
-    \item Imagenes no validas:
-    \begin{enumerate}
-        \item Sistema muestra "Las imagenes no tiene el formato indicado"
-        \item Sistemea muestra los requisitos de formatos de imagen.
-    \end{enumerate}
-    \item Solicitud rechazada:
-    \begin{enumerate}
-        \item Sistema manda notificación "Actualización de estado rechazado, Incidente ? (enlace a incidente)"
-    \end{enumerate}
-\end{itemize}
-
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Incidentes no disponibles:
-    \begin{enumerate}
-        \item Sisteam muestra error "Error al cargar incidentes"
-    \end{enumerate}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al procesar solicitud"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 11: APROBAR SOLICITUD DE INCIDENTE RESUELTO ---
-\subsection*{CU11: Aprobar Cambio de Estado}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada y seleccionó un incidente con solicitud de cambio de estado
-    \item \textbf{Postcondiciones:} Aumenta el número de aprobaciones de la solicitud de cambio de estado de un incidente
-\end{itemize}
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item Usuario selecciona incidente en mapa/listado (RF4)
-    \item Clic en aprobar, sobre una solicitud de cambio de estado
-    \item Sistema aumenta el número de aprobaciones de la solicitud
-\end{enumerate}
-
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Incidentes no disponibles:
-    \begin{enumerate}
-        \item Sisteam muestra error "Error al cargar incidentes"
-    \end{enumerate}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al procesar solicitud"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 12: DISCREPAR INCIDENTE RESUELTO ---
-\subsection*{CU12: Discrepar sobre Incidente Resuelto}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada y seleccionó un incidente con estado Resuelto
-    \item \textbf{Postcondiciones:} Cambia el estado del incidente seleccionado a No Resuelto
-\end{itemize}
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item Usuario selecciona incidente en mapa/listado (RF4)
-    \item Clic en Esto no está resuelto
-    \item Sistema solicita en formulario de disputa: Seleccionar motivo, adjuntar foto de prueba (opcional)
-    \item Se cambia el estado a En Proceso
-    \item Sistema valida información del formulario, el estado cambia a No Resuelto
-\end{enumerate}
-
-\textbf{Flujo Alternativo:}
-\begin{itemize}
-    \item Solicitud de disputa rechazada:
-    \begin{enumerate}
-        \item Sistema manda notificación ``Disputa de Incidente Resuelto rechazada, Incidente ? (enlace a incidente) ''
-    \end{enumerate}
-\end{itemize}
-
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Incidentes no disponibles:
-    \begin{enumerate}
-        \item Sisteam muestra error "Error al cargar incidentes"
-    \end{enumerate}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al procesar solicitud"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 13: EXPLORAR MENSAJE/NOTIFICACIONES ---
-\subsection*{CU13: Explorar Mensajes}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada
-    \item \textbf{Postcondiciones:} Se visualizan las notificaciones recibidas por el usuario
-\end{itemize}
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item Usuario selecciona el apartado Mensajes
-    \item Sistema muestra pantalla de Mensajes
-    \item Se visualiza un apartado con los encabezados de los mensajes entrantes/notificaciones
-    \item Usuario hace clic en algun mensaje
-    \item Sistema muestra el cuerpo completo del mensaje
-\end{enumerate}
-
-\textbf{Flujo Alternativo:}
-\begin{itemize}
-    \item No se han recibido mensajes:
-    \begin{enumerate}
-        \item Sistema muestra texto Sin mensajes disponibles aún
-    \end{enumerate}
-\end{itemize}
-
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al mostrar notificaciones"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 14: Eliminar incidente ---
-\subsection*{CU14: Eliminar incidente}
-\begin{itemize}
-    \item \textbf{Actores:} Administrador, Sistema
-    \item \textbf{Precondiciones:} El usuario tiene su sesión iniciada como administrador
-    \item \textbf{Postcondiciones:} Se borra del sistema el incidente seleccionado
-\end{itemize}
-\textbf{Flujo Principal:}
-\begin{enumerate}
-     \item Administrador selecciona incidente en mapa/listado (RF4)
-    \item Clic en Eliminar
-    \item Sistema muestra mensaje de confirmación
-    \item Administrador confirma eliminación
-    \item Sistema borra completamente el incidente
-    \item Sistema muestra el mensaje Eliminación exitosa
-\end{enumerate}
-
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Incidentes no disponibles:
-    \begin{enumerate}
-        \item Sisteam muestra error "Error al cargar incidentes"
-    \end{enumerate}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al procesar solicitud"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 15: Compartir incidente ---
-\subsection*{CU15: Compartir incidente}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondiciones:} El usario tiene su sesión iniciada y se ha reportado al menos un incidente.
-    \item \textbf{Postcondiciones:} El incidente es compartido exitosamente con los destinatarios elegidos por el usuario.
-\end{itemize}
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item Usario selecciona el apartado de Incidentes o Mis Incidentes
-    \item Sistema muestra pantalla con los incidentes
-    \item Usario selecciona un incidente en especifico
-    \item Se visualiza un boton llamado "Compartir"
-    \item Usario presiona el boton llamado "Compartir"
-    \item El sistema genera un enlace único al incidente que puede ser copiado por el usuario.
-\end{enumerate}
-
-
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al compartir el incidente"
-    \end{enumerate}
-\end{itemize}
-
-% --- CASO DE USO 16: Aportar Información ---
-\subsection*{CU16: Aportar Información}
-\begin{itemize}
-    \item \textbf{Actores:} Ciudadano, Sistema
-    \item \textbf{Precondciones:} El usario tiene su sesión iniciada y se ha reportado al mneos un incidente.
-    \item \textbf{Postcondiciones:} El incidente tiene nuevas fotos o videos adicionales con un comentario contexttual.
-\end{itemize}
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item Usuario selecciona el apartado de Incidentes
-    \item Sistema muestra pantalla con los incidentes
-    \item Usario selecciona un incidente en especifico
-    \item Se visualiza el boton llamado "Añadir Pruebas"
-    \item Usario presiona el boton llamado "Añadir Purbeas"
-    \item Sistema solicita en formulario: Subir 1+fotos de evidencia y descripción
-    \item El sistema guarda los archivos y el comentario.
-    \item Los nuevos archivos se muestran en la galería del caso, etiquetados como "Contribución comunitaria".
-\end{enumerate}
-
-\textbf{Flujo alternativo:}
-\begin{itemize}
-    \item Formulario Incompleto:
-    \begin{enumerate}
-        \item Sistema muestra “Por favor, llena este campo” en el espacio sin llenar
-    \end{enumerate}
-    \item Imagenes no validas:
-    \begin{enumerate}
-        \item Sistema muestra "Las imagenes no tiene el formato indicado"
-        \item Sistemea muestra los requisitos de formatos de imagen.
-    \end{enumerate}
-    \item Solicitud rechazada:
-    \begin{enumerate}
-        \item Sistema manda notificación "Informacion rechazada. Volver a intentarlo"
-    \end{enumerate}
-\end{itemize}
-
-\textbf{Flujo Excepcional:}
-\begin{itemize}
-    \item Incidentes no disponibles:
-    \begin{enumerate}
-        \item Sistema muestra error "Error al cargar incidentes"
-    \end{enumerate}
-    \item Servidor no disponible:
-    \begin{enumerate}
-        \item Sistema muestra "Error al procesar solicitud"
-    \end{enumerate}
-\end{itemize}
-
-\end{multicols}

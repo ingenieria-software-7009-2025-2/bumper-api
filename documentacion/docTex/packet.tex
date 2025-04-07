@@ -1,7 +1,7 @@
 %---------------------------- COMANDOS PORTADA ------------------/
 %---------------------------------------------------------------/
 %\newcommand*{\nombre}{Marco Silva Huerta}
-\newcommand*{\fecha}{17 de Febrero de 2025}
+\newcommand*{\fecha}{06 de Abril de 2025}
 \newcommand*{\semestre}{2025-2}
 %\newcommand*{\id}{0000000}
 \newcommand*{\nombreTarea}{Especificación de Requerimientos}
@@ -49,7 +49,9 @@
 %-----------------------------------------------------------------------\
 %-----------------------------------FIN--- DE PACKETES-------------------\
 
-
+\usepackage{minted}
+\usepackage{fancyvrb}
+\usepackage{fontawesome5}
 
 %----------------------------------------------------------------------/
 %-------------------Encabezado y Pie de Pagina-----------------------/ |
@@ -86,6 +88,34 @@
 %-------------------Encabezado y Pie de Pagina-----------------------/ |
 %------------------------------------------------------------FIN----/
 
+
+% Estilos para los cuadros
+\tcbset{
+    endpoint/.style={
+        colframe=methodColor,
+        colback=methodColor!10,
+        fonttitle=\bfseries\color{white},
+        title=Endpoint
+    },
+    request/.style={
+        colframe=urlColor,
+        colback=urlColor!10,
+        fonttitle=\bfseries\color{white},
+        title=Request
+    },
+    response/.style={
+        colframe=successColor,
+        colback=successColor!10,
+        fonttitle=\bfseries\color{white},
+        title=Response
+    },
+    notes/.style={
+        colframe=noteColor,
+        colback=noteColor!10,
+        fonttitle=\bfseries\color{white},
+        title=Notas
+    }
+}
 
 \usepackage{tikz,times}
 \usepackage{verbatim}
@@ -144,3 +174,13 @@
 
 %------------------- LISTA DE COLORES -------------------------------\
 %---------------------------------------------------------------------\
+
+
+
+% Definición de colores
+\definecolor{methodColor}{HTML}{2E86C1}
+\definecolor{urlColor}{HTML}{27AE60}
+\definecolor{successColor}{HTML}{2ECC71}
+\definecolor{errorColor}{HTML}{E74C3C}
+\definecolor{headerColor}{HTML}{F39C12}
+\definecolor{noteColor}{HTML}{BDC3C7}
