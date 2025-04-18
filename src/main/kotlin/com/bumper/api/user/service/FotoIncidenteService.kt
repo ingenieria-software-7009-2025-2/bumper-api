@@ -7,10 +7,23 @@ import org.springframework.stereotype.Service
 @Service
 class FotoIncidenteService(private val fotoIncidenteRepository: FotoIncidenteRepository) {
 
+    private val MAX_FOTOS_POR_INCIDENTE = 3
+
     /**
-     * Guarda una nueva foto asociada a un incidente.
+     * Guarda una nueva foto asociada a un incidente, con validaciones
      */
     fun guardarFoto(foto: FotoIncidente): Long {
+        // Validar número máximo de fotos
+        val numeroFotos = fotoIncidenteRepository.countFotosByIncidenteId(foto.incidente.id!!)
+        if (numeroFotos >= MAX_FOTOS_POR_INCIDENTE) {
+            throw IllegalStateException("El incidente ya tiene el máximo de fotos permitidas ($MAX_FOTOS_POR_INCIDENTE)")
+        }
+
+        // Validar formato de URL
+        if (!foto.urlFoto.startsWith("https://")) {
+            throw IllegalArgumentException("La URL de la foto debe ser HTTPS")
+        }
+
         return fotoIncidenteRepository.save(foto)
     }
 
