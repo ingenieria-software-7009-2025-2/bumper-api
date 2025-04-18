@@ -2,57 +2,112 @@ package com.bumper.api.user.service
 
 import com.bumper.api.user.domain.FotoIncidente
 import com.bumper.api.user.repository.FotoIncidenteRepository
+import com.bumper.api.user.repository.IncidenteRepository
+import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
+import org.springframework.transaction.annotation.Transactional
 
 @Service
-class FotoIncidenteService(private val fotoIncidenteRepository: FotoIncidenteRepository) {
+class FotoIncidenteService(
+    private val fotoIncidenteRepository: FotoIncidenteRepository,
+    private val incidenteRepository: IncidenteRepository
+) {
+    private val logger = LoggerFactory.getLogger(javaClass)
 
-    private val MAX_FOTOS_POR_INCIDENTE = 3
+    @Transactional
+    fun agregarFoto(incidenteId: String, urlFoto: String, descripcion: String?): FotoIncidente {
+        logger.info("Intentando agregar foto para incidente: $incidenteId")
 
-    /**
-     * Guarda una nueva foto asociada a un incidente, con validaciones
-     */
-    fun guardarFoto(foto: FotoIncidente): Long {
-        // Validar número máximo de fotos
-        val numeroFotos = fotoIncidenteRepository.countFotosByIncidenteId(foto.incidente.id!!)
-        if (numeroFotos >= MAX_FOTOS_POR_INCIDENTE) {
-            throw IllegalStateException("El incidente ya tiene el máximo de fotos permitidas ($MAX_FOTOS_POR_INCIDENTE)")
+        // Verificar que el incidente existe
+        incidenteRepository.findById(incidenteId)
+            ?: throw IllegalArgumentException("Incidente no encontrado: $incidenteId")
+
+        return try {
+            val foto = FotoIncidente(
+                incidenteId = incidenteId,
+                urlFoto = urlFoto,
+                descripcion = descripcion
+            )
+            fotoIncidenteRepository.save(foto)
+        } catch (e: Exception) {
+            logger.error("Error al guardar la foto: ${e.message}", e)
+            throw IllegalStateException("Error al guardar la foto: ${e.message}")
         }
-
-        // Validar formato de URL
-        if (!foto.urlFoto.startsWith("https://")) {
-            throw IllegalArgumentException("La URL de la foto debe ser HTTPS")
-        }
-
-        return fotoIncidenteRepository.save(foto)
     }
 
     /**
-     * Obtiene todas las fotos asociadas a un incidente.
+     * Obtiene todas las fotos de un incidente.
+     * @throws IllegalArgumentException si el incidente no existe
      */
-    fun obtenerFotosPorIncidente(incidenteId: String): List<FotoIncidente> {
+    fun getFotosDeIncidente(incidenteId: String): List<FotoIncidente> {
+        logger.info("Obteniendo fotos del incidente: $incidenteId")
+
+        // Verificar que el incidente existe
+        incidenteRepository.findById(incidenteId)
+            ?: throw IllegalArgumentException("Incidente no encontrado: $incidenteId")
+
         return fotoIncidenteRepository.findByIncidenteId(incidenteId)
     }
 
     /**
-     * Elimina una foto por su ID.
+     * Elimina una foto específica, verificando permisos.
+     * @throws IllegalArgumentException si la foto no existe o no pertenece al usuario
      */
-    fun eliminarFoto(id: Long) {
-        fotoIncidenteRepository.delete(id)
+    @Transactional
+    fun eliminarFoto(id: Long, usuarioId: Long) {
+        logger.info("Intentando eliminar foto ID: $id")
+
+        if (!perteneceAUsuario(id, usuarioId)) {
+            throw IllegalArgumentException("No tienes permiso para eliminar esta foto")
+        }
+
+        try {
+            fotoIncidenteRepository.delete(id)
+            logger.info("Foto eliminada exitosamente")
+        } catch (e: Exception) {
+            logger.error("Error al eliminar la foto: ${e.message}", e)
+            throw IllegalStateException("Error al eliminar la foto: ${e.message}")
+        }
     }
 
     /**
-     * Elimina todas las fotos de un incidente.
+     * Elimina todas las fotos de un incidente, verificando permisos.
+     * @throws IllegalArgumentException si el incidente no existe o no pertenece al usuario
      */
-    fun eliminarFotosPorIncidente(incidenteId: String) {
-        fotoIncidenteRepository.deleteByIncidenteId(incidenteId)
+    @Transactional
+    fun eliminarFotosPorIncidente(incidenteId: String, usuarioId: Long) {
+        logger.info("Intentando eliminar todas las fotos del incidente: $incidenteId")
+
+        val incidente = incidenteRepository.findById(incidenteId)
+            ?: throw IllegalArgumentException("Incidente no encontrado: $incidenteId")
+
+        if (incidente.usuario.id != usuarioId) {
+            throw IllegalArgumentException("No tienes permiso para eliminar las fotos de este incidente")
+        }
+
+        val fotosEliminadas = fotoIncidenteRepository.deleteByIncidenteId(incidenteId)
+        logger.info("$fotosEliminadas fotos eliminadas del incidente $incidenteId")
     }
 
     /**
-     * Actualiza la descripción de una foto.
+     * Actualiza la descripción de una foto, verificando permisos.
+     * @throws IllegalArgumentException si la foto no existe o no pertenece al usuario
      */
-    fun actualizarDescripcion(id: Long, descripcion: String) {
-        fotoIncidenteRepository.updateDescripcion(id, descripcion)
+    @Transactional
+    fun actualizarDescripcion(id: Long, descripcion: String, usuarioId: Long) {
+        logger.info("Intentando actualizar descripción de foto ID: $id")
+
+        if (!perteneceAUsuario(id, usuarioId)) {
+            throw IllegalArgumentException("No tienes permiso para modificar esta foto")
+        }
+
+        try {
+            fotoIncidenteRepository.updateDescripcion(id, descripcion)
+            logger.info("Descripción actualizada exitosamente")
+        } catch (e: Exception) {
+            logger.error("Error al actualizar la descripción: ${e.message}", e)
+            throw IllegalStateException("Error al actualizar la descripción: ${e.message}")
+        }
     }
 
     /**
@@ -63,7 +118,7 @@ class FotoIncidenteService(private val fotoIncidenteRepository: FotoIncidenteRep
     }
 
     /**
-     * Cuenta cuántas fotos tiene un incidente.
+     * Cuenta el número de fotos que tiene un incidente.
      */
     fun contarFotosPorIncidente(incidenteId: String): Int {
         return fotoIncidenteRepository.countFotosByIncidenteId(incidenteId)

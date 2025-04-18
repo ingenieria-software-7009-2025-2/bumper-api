@@ -7,7 +7,6 @@ import java.time.LocalDateTime
 @Table(name = "incidentes")
 data class Incidente(
     @Id
-    // Removemos GeneratedValue ya que el ID será generado por el trigger
     @Column(nullable = false)
     val id: String? = null,
 
@@ -36,6 +35,11 @@ data class Incidente(
     @Column(nullable = false)
     val estado: String = "PENDIENTE",
 
-    @OneToMany(mappedBy = "incidente", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    @OneToMany(mappedBy = "incidenteId", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val fotos: List<FotoIncidente> = emptyList()
-)
+) {
+    // Método para facilitar la copia con fotos actualizadas
+    fun copyWithFotos(newFotos: List<FotoIncidente>): Incidente {
+        return this.copy(fotos = newFotos)
+    }
+}
