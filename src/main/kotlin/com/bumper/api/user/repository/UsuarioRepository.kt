@@ -1,15 +1,20 @@
 package com.bumper.api.user.repository
 
 import com.bumper.api.user.domain.Usuario
+import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
+import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
+import org.springframework.transaction.annotation.Transactional
 import javax.sql.DataSource
-import java.time.LocalDateTime // Añadida esta importación
-import java.sql.Timestamp // También es útil para manejar fechas con JDBC
+import java.sql.Statement
+import java.sql.Timestamp
+import java.time.LocalDateTime
 
 @Repository
 class UsuarioRepository(private val dataSource: DataSource) {
+    private val logger = LoggerFactory.getLogger(javaClass)
     private val jdbcTemplate = JdbcTemplate(dataSource)
 
     private val usuarioRowMapper = RowMapper { rs, _ ->
@@ -25,33 +30,42 @@ class UsuarioRepository(private val dataSource: DataSource) {
         )
     }
 
+    @Transactional
     fun save(usuario: Usuario): Usuario {
+        logger.info("Guardando nuevo usuario: ${usuario.correo}")
+
         val sql = """
-            INSERT INTO usuarios (nombre, apellido, correo, password, token, numero_incidentes, fecha_registro)
-            VALUES (?, ?, ?, ?, ?, ?, ?)
-            RETURNING id
+            INSERT INTO usuarios (
+                nombre, apellido, correo, password, token, numero_incidentes, fecha_registro
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
         """
 
-        val id = jdbcTemplate.queryForObject(
-            sql,
-            Long::class.java,
-            usuario.nombre,
-            usuario.apellido,
-            usuario.correo,
-            usuario.password,
-            usuario.token,
-            usuario.numeroIncidentes,
-            Timestamp.valueOf(LocalDateTime.now())
-        ) ?: throw IllegalStateException("No se pudo obtener el ID del usuario creado")
+        val keyHolder = GeneratedKeyHolder()
+        jdbcTemplate.update({ connection ->
+            val ps = connection.prepareStatement(sql, arrayOf("id"))
+            ps.setString(1, usuario.nombre)
+            ps.setString(2, usuario.apellido)
+            ps.setString(3, usuario.correo)
+            ps.setString(4, usuario.password)
+            ps.setString(5, usuario.token ?: "inactivo")
+            ps.setInt(6, usuario.numeroIncidentes)
+            ps.setTimestamp(7, Timestamp.valueOf(usuario.fechaRegistro ?: LocalDateTime.now()))
+            ps
+        }, keyHolder)
 
-        return usuario.copy(id = id)
+        val id = keyHolder.key?.toString()?.toLongOrNull()
+            ?: throw IllegalStateException("No se pudo obtener el ID del usuario creado")
+
+        return findById(id) ?: throw IllegalStateException("No se pudo recuperar el usuario creado")
     }
 
     fun findByCorreo(correo: String): Usuario? {
+        logger.info("Buscando usuario por correo: $correo")
         val sql = "SELECT * FROM usuarios WHERE correo = ?"
         return try {
-            jdbcTemplate.queryForObject(sql, usuarioRowMapper, correo)
+            jdbcTemplate.query(sql, usuarioRowMapper, correo).firstOrNull()
         } catch (e: Exception) {
+            logger.error("Error al buscar usuario por correo $correo: ${e.message}", e)
             null
         }
     }
@@ -59,18 +73,39 @@ class UsuarioRepository(private val dataSource: DataSource) {
     fun findById(id: Long): Usuario? {
         val sql = "SELECT * FROM usuarios WHERE id = ?"
         return try {
-            jdbcTemplate.queryForObject(sql, usuarioRowMapper, id)
+            jdbcTemplate.query(sql, usuarioRowMapper, id).firstOrNull()
         } catch (e: Exception) {
+            logger.error("Error al buscar usuario por ID $id: ${e.message}", e)
             null
         }
     }
 
-    fun updateToken(correo: String, token: String) {
-        val sql = "UPDATE usuarios SET token = ? WHERE correo = ?"
-        jdbcTemplate.update(sql, token, correo)
+    fun existsById(id: Long): Boolean {
+        val sql = "SELECT COUNT(*) FROM usuarios WHERE id = ?"
+        return try {
+            (jdbcTemplate.queryForObject(sql, Int::class.java, id) ?: 0) > 0
+        } catch (e: Exception) {
+            logger.error("Error al verificar existencia de usuario $id: ${e.message}", e)
+            false
+        }
     }
 
+    @Transactional
+    fun updateToken(correo: String, token: String): Boolean {
+        logger.info("Actualizando token para usuario: $correo")
+        val sql = "UPDATE usuarios SET token = ? WHERE correo = ?"
+        return try {
+            val rowsAffected = jdbcTemplate.update(sql, token, correo)
+            rowsAffected > 0
+        } catch (e: Exception) {
+            logger.error("Error al actualizar token para usuario $correo: ${e.message}", e)
+            false
+        }
+    }
+
+    @Transactional
     fun update(usuario: Usuario): Usuario {
+        logger.info("Actualizando usuario con ID: ${usuario.id}")
         val sql = """
             UPDATE usuarios 
             SET nombre = ?, 
@@ -82,22 +117,39 @@ class UsuarioRepository(private val dataSource: DataSource) {
             WHERE id = ?
         """
 
-        jdbcTemplate.update(
-            sql,
-            usuario.nombre,
-            usuario.apellido,
-            usuario.correo,
-            usuario.password,
-            usuario.token,
-            usuario.numeroIncidentes,
-            usuario.id
-        )
+        try {
+            val rowsAffected = jdbcTemplate.update(
+                sql,
+                usuario.nombre,
+                usuario.apellido,
+                usuario.correo,
+                usuario.password,
+                usuario.token,
+                usuario.numeroIncidentes,
+                usuario.id
+            )
 
-        return usuario
+            if (rowsAffected == 0) {
+                throw IllegalStateException("No se encontró usuario con ID: ${usuario.id}")
+            }
+
+            return findById(usuario.id!!) ?: throw IllegalStateException("No se pudo recuperar el usuario actualizado")
+        } catch (e: Exception) {
+            logger.error("Error al actualizar usuario ${usuario.id}: ${e.message}", e)
+            throw IllegalStateException("Error al actualizar usuario: ${e.message}")
+        }
     }
 
-    fun incrementarIncidentes(id: Long) {
+    @Transactional
+    fun incrementarIncidentes(id: Long): Boolean {
+        logger.info("Incrementando número de incidentes para usuario ID: $id")
         val sql = "UPDATE usuarios SET numero_incidentes = numero_incidentes + 1 WHERE id = ?"
-        jdbcTemplate.update(sql, id)
+        return try {
+            val rowsAffected = jdbcTemplate.update(sql, id)
+            rowsAffected > 0
+        } catch (e: Exception) {
+            logger.error("Error al incrementar incidentes para usuario $id: ${e.message}", e)
+            false
+        }
     }
 }

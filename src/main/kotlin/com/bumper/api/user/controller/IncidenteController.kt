@@ -20,7 +20,7 @@ class IncidenteController(
     /**
      * Endpoint para crear un nuevo incidente en el sistema.
      */
-    @PostMapping
+    @PostMapping("/create")
     fun registrarIncidente(@RequestBody request: IncidenteRequest): ResponseEntity<Any> {
         logger.info("Recibida solicitud para registrar incidente: $request")
 
@@ -56,7 +56,7 @@ class IncidenteController(
     /**
      * Endpoint para obtener todos los incidentes registrados en el sistema.
      */
-    @GetMapping
+    @GetMapping("/all")
     fun obtenerTodos(): ResponseEntity<List<Incidente>> {
         logger.info("Obteniendo todos los incidentes")
         val incidentes = incidenteService.obtenerTodos()
@@ -94,7 +94,7 @@ class IncidenteController(
     /**
      * Endpoint para actualizar el estado de un incidente.
      */
-    @PutMapping("/{id}/estado")
+    @PutMapping("/update-status/{id}")
     fun actualizarEstado(
         @PathVariable id: String,
         @RequestBody request: EstadoRequest,

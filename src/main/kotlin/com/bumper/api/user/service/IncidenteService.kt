@@ -18,7 +18,7 @@ class IncidenteService(
      */
     @Transactional
     fun crear(incidente: Incidente): Incidente {
-        logger.info("Creando nuevo incidente")
+        logger.info("Creando nuevo incidente para usuario ID: ${incidente.usuario.id}")
         return incidenteRepository.save(incidente)
     }
 
@@ -41,6 +41,7 @@ class IncidenteService(
     /**
      * Obtiene un incidente por su ID
      */
+    @Transactional(readOnly = true)
     fun obtenerPorId(id: String): Incidente? {
         logger.info("Buscando incidente con ID: $id")
         return incidenteRepository.findById(id)
@@ -50,9 +51,14 @@ class IncidenteService(
      * Actualiza el estado de un incidente
      */
     @Transactional
-    fun actualizarEstado(id: String, nuevoEstado: String): Incidente? {
-        logger.info("Actualizando estado de incidente $id a: $nuevoEstado")
-        return incidenteRepository.updateEstado(id, nuevoEstado)
+    fun actualizarEstado(id: String, estado: String): Incidente? {
+        logger.info("Actualizando estado de incidente $id a: $estado")
+        // Validar que el estado sea válido
+        if (!estadosValidos.contains(estado.uppercase())) {
+            logger.error("Estado inválido: $estado")
+            throw IllegalArgumentException("Estado inválido. Estados válidos: ${estadosValidos.joinToString()}")
+        }
+        return incidenteRepository.updateEstado(id, estado.uppercase())
     }
 
     /**
@@ -60,7 +66,12 @@ class IncidenteService(
      */
     fun obtenerPorEstado(estado: String): List<Incidente> {
         logger.info("Obteniendo incidentes con estado: $estado")
-        return incidenteRepository.findByEstado(estado)
+        // Validar que el estado sea válido
+        if (!estadosValidos.contains(estado.uppercase())) {
+            logger.error("Estado inválido: $estado")
+            return emptyList()
+        }
+        return incidenteRepository.findByEstado(estado.uppercase())
     }
 
     /**
@@ -68,6 +79,11 @@ class IncidenteService(
      */
     fun buscarCercanos(latitud: Double, longitud: Double, radioKm: Double): List<Incidente> {
         logger.info("Buscando incidentes cercanos a ($latitud, $longitud) en radio de $radioKm km")
+        // Validar coordenadas
+        if (latitud < -90 || latitud > 90 || longitud < -180 || longitud > 180 || radioKm <= 0) {
+            logger.error("Coordenadas o radio inválidos: lat=$latitud, lon=$longitud, radio=$radioKm")
+            return emptyList()
+        }
         return incidenteRepository.findNearby(latitud, longitud, radioKm)
     }
 
@@ -77,5 +93,9 @@ class IncidenteService(
     fun puedeModificar(incidenteId: String, usuarioId: Long): Boolean {
         val incidente = obtenerPorId(incidenteId) ?: return false
         return incidente.usuario.id == usuarioId
+    }
+
+    companion object {
+        private val estadosValidos = setOf("PENDIENTE", "EN_PROCESO", "RESUELTO")
     }
 }

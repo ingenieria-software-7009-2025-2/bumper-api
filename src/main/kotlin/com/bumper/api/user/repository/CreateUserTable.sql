@@ -37,6 +37,8 @@ CREATE INDEX idx_incidentes_ubicacion ON incidentes(latitud, longitud);
 CREATE INDEX idx_incidentes_estado ON incidentes(estado);
 CREATE INDEX idx_incidentes_usuario ON incidentes(usuario_id);
 CREATE INDEX idx_incidentes_fecha ON incidentes(hora_incidente DESC);
+CREATE INDEX idx_incidentes_usuario_id ON incidentes(usuario_id);
+CREATE INDEX idx_incidentes_estado ON incidentes(estado);
 
 -- Tabla de Fotos de Incidentes
 CREATE TABLE fotos_incidentes (
