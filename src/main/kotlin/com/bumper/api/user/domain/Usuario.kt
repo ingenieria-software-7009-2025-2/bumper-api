@@ -1,7 +1,8 @@
 package com.bumper.api.user.domain
 
 import jakarta.persistence.*
-import java.util.Collections.emptyList
+import java.time.LocalDateTime
+import com.bumper.api.user.domain.Incidente
 
 @Entity
 @Table(name = "usuarios")
@@ -16,7 +17,7 @@ data class Usuario(
     @Column(nullable = false)
     val apellido: String,
 
-    @Column(unique = true, nullable = false, name = "correo")
+    @Column(unique = true, nullable = false)
     val correo: String,
 
     @Column(nullable = false)
@@ -28,6 +29,9 @@ data class Usuario(
     @Column(name = "numero_incidentes", nullable = false)
     var numeroIncidentes: Int = 0,
 
+    @Column(name = "fecha_registro", nullable = false)
+    val fechaRegistro: LocalDateTime = LocalDateTime.now(),
+
     @OneToMany(mappedBy = "usuario", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
-    val incidentes: List<Incidente> = emptyList()
+    val incidentes: List<Incidente> = listOf()
 )

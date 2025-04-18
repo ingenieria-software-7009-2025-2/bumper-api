@@ -7,8 +7,9 @@ import java.time.LocalDateTime
 @Table(name = "incidentes")
 data class Incidente(
     @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
+    // Removemos GeneratedValue ya que el ID será generado por el trigger
+    @Column(nullable = false)
+    val id: String? = null,
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "usuario_id", nullable = false)
@@ -20,9 +21,21 @@ data class Incidente(
     @Column(nullable = false)
     val ubicacion: String,
 
+    @Column(nullable = false)
+    val latitud: Double,
+
+    @Column(nullable = false)
+    val longitud: Double,
+
     @Column(name = "hora_incidente", nullable = false)
-    val horaIncidente: LocalDateTime,
+    val horaIncidente: LocalDateTime = LocalDateTime.now(),
 
     @Column(name = "tipo_vialidad", nullable = false)
-    val tipoVialidad: String
+    val tipoVialidad: String,
+
+    @Column(nullable = false)
+    val estado: String = "PENDIENTE",
+
+    @OneToMany(mappedBy = "incidente", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
+    val fotos: List<FotoIncidente> = emptyList()
 )
