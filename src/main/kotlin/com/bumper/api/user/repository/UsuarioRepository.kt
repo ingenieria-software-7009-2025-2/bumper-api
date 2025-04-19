@@ -8,9 +8,6 @@ import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import javax.sql.DataSource
-import java.sql.Statement
-import java.sql.Timestamp
-import java.time.LocalDateTime
 
 @Repository
 class UsuarioRepository(private val dataSource: DataSource) {
@@ -34,11 +31,15 @@ class UsuarioRepository(private val dataSource: DataSource) {
     fun save(usuario: Usuario): Usuario {
         logger.info("Guardando nuevo usuario: ${usuario.correo}")
 
+        if (findByCorreo(usuario.correo) != null) {
+            throw IllegalStateException("Ya existe un usuario con el correo: ${usuario.correo}")
+        }
+
         val sql = """
-            INSERT INTO usuarios (
-                nombre, apellido, correo, password, token, numero_incidentes, fecha_registro
-            ) VALUES (?, ?, ?, ?, ?, ?, ?)
-        """
+        INSERT INTO usuarios (
+            nombre, apellido, correo, password, token, numero_incidentes
+        ) VALUES (?, ?, ?, ?, ?, ?)
+    """
 
         val keyHolder = GeneratedKeyHolder()
         jdbcTemplate.update({ connection ->
@@ -49,11 +50,10 @@ class UsuarioRepository(private val dataSource: DataSource) {
             ps.setString(4, usuario.password)
             ps.setString(5, usuario.token ?: "inactivo")
             ps.setInt(6, usuario.numeroIncidentes)
-            ps.setTimestamp(7, Timestamp.valueOf(usuario.fechaRegistro ?: LocalDateTime.now()))
             ps
         }, keyHolder)
 
-        val id = keyHolder.key?.toString()?.toLongOrNull()
+        val id = keyHolder.key?.toLong()
             ?: throw IllegalStateException("No se pudo obtener el ID del usuario creado")
 
         return findById(id) ?: throw IllegalStateException("No se pudo recuperar el usuario creado")

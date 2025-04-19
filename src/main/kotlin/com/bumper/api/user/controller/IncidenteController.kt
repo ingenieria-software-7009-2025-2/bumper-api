@@ -27,7 +27,10 @@ class IncidenteController(
             val usuario = usuarioService.buscarPorId(request.usuarioId)
                 ?: return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body(mapOf("mensaje" to "Usuario no encontrado"))
+                    .body(mapOf(
+                        "mensaje" to "Usuario no encontrado",
+                        "usuarioId" to request.usuarioId
+                    ))
 
             val incidente = Incidente(
                 usuario = usuario,
@@ -41,12 +44,20 @@ class IncidenteController(
             )
 
             val incidenteCreado = incidenteService.crear(incidente)
-            ResponseEntity.status(HttpStatus.CREATED).body(incidenteCreado)
+            ResponseEntity.status(HttpStatus.CREATED).body(
+                mapOf(
+                    "mensaje" to "Incidente creado exitosamente",
+                    "incidente" to incidenteCreado
+                )
+            )
         } catch (e: Exception) {
             logger.error("Error al registrar incidente: ${e.message}", e)
             ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(mapOf("mensaje" to "Error al registrar el incidente: ${e.message}"))
+                .body(mapOf(
+                    "mensaje" to "Error al registrar el incidente",
+                    "error" to e.message
+                ))
         }
     }
 
@@ -54,23 +65,64 @@ class IncidenteController(
      * Endpoint para obtener todos los incidentes registrados en el sistema.
      */
     @GetMapping("/all")
-    fun obtenerTodos(): ResponseEntity<List<Incidente>> {
+    fun obtenerTodos(): ResponseEntity<Any> {
         logger.info("Obteniendo todos los incidentes")
-        val incidentes = incidenteService.obtenerTodos()
-        return ResponseEntity.ok(incidentes)
+        return try {
+            val incidentes = incidenteService.obtenerTodos()
+            if (incidentes.isEmpty()) {
+                ResponseEntity.ok(
+                    mapOf(
+                        "mensaje" to "No se encontraron incidentes registrados",
+                        "incidentes" to incidentes
+                    )
+                )
+            } else {
+                ResponseEntity.ok(
+                    mapOf(
+                        "mensaje" to "Incidentes encontrados",
+                        "total" to incidentes.size,
+                        "incidentes" to incidentes
+                    )
+                )
+            }
+        } catch (e: Exception) {
+            logger.error("Error al obtener todos los incidentes: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error al obtener los incidentes"))
+        }
     }
 
     /**
      * Endpoint para obtener todos los incidentes asociados a un usuario específico.
      */
     @GetMapping("/usuario/{usuarioId}")
-    fun obtenerPorUsuario(@PathVariable usuarioId: Long): ResponseEntity<List<Incidente>> {
+    fun obtenerPorUsuario(@PathVariable usuarioId: Long): ResponseEntity<Any> {
         logger.info("Obteniendo incidentes para el usuario con ID: $usuarioId")
-        val incidentes = incidenteService.obtenerPorUsuario(usuarioId)
-        if (incidentes.isEmpty()) {
-            logger.warn("No se encontraron incidentes para el usuario con ID: $usuarioId")
+        return try {
+            val usuario = usuarioService.buscarPorId(usuarioId)
+                ?: return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(mapOf("mensaje" to "Usuario no encontrado"))
+
+            val incidentes = incidenteService.obtenerPorUsuario(usuarioId)
+            ResponseEntity.ok(
+                mapOf(
+                    "mensaje" to "Incidentes encontrados para el usuario",
+                    "usuario" to mapOf(
+                        "id" to usuario.id,
+                        "nombre" to "${usuario.nombre} ${usuario.apellido}"
+                    ),
+                    "total" to incidentes.size,
+                    "incidentes" to incidentes
+                )
+            )
+        } catch (e: Exception) {
+            logger.error("Error al obtener incidentes del usuario $usuarioId: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error al obtener los incidentes del usuario"))
         }
-        return ResponseEntity.ok(incidentes)
     }
 
     /**
@@ -79,12 +131,25 @@ class IncidenteController(
     @GetMapping("/{id}")
     fun obtenerPorId(@PathVariable id: String): ResponseEntity<Any> {
         logger.info("Buscando incidente con ID: $id")
-        val incidente = incidenteService.obtenerPorId(id)
-        return if (incidente != null) {
-            ResponseEntity.ok(incidente)
-        } else {
-            logger.warn("No se encontró incidente con ID: $id")
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Incidente no encontrado")
+        return try {
+            val incidente = incidenteService.obtenerPorId(id)
+            if (incidente != null) {
+                ResponseEntity.ok(
+                    mapOf(
+                        "mensaje" to "Incidente encontrado",
+                        "incidente" to incidente
+                    )
+                )
+            } else {
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(mapOf("mensaje" to "Incidente no encontrado"))
+            }
+        } catch (e: Exception) {
+            logger.error("Error al buscar incidente con ID $id: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error al buscar el incidente"))
         }
     }
 
@@ -99,24 +164,31 @@ class IncidenteController(
     ): ResponseEntity<Any> {
         logger.info("Actualizando estado del incidente con ID: $id a ${request.estado}")
 
-        if (!incidenteService.puedeModificar(id, usuarioId)) {
-            return ResponseEntity
-                .status(HttpStatus.FORBIDDEN)
-                .body("No tienes permiso para modificar este incidente")
-        }
-
         return try {
+            if (!incidenteService.puedeModificar(id, usuarioId)) {
+                return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(mapOf("mensaje" to "No tienes permiso para modificar este incidente"))
+            }
+
             val incidenteActualizado = incidenteService.actualizarEstado(id, request.estado)
             if (incidenteActualizado != null) {
-                ResponseEntity.ok(incidenteActualizado)
+                ResponseEntity.ok(
+                    mapOf(
+                        "mensaje" to "Estado actualizado correctamente",
+                        "incidente" to incidenteActualizado
+                    )
+                )
             } else {
-                logger.warn("No se encontró incidente con ID: $id para actualizar estado")
-                ResponseEntity.status(HttpStatus.NOT_FOUND).body("Incidente no encontrado")
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(mapOf("mensaje" to "Incidente no encontrado"))
             }
         } catch (e: Exception) {
-            logger.error("Error al actualizar estado del incidente: ${e.message}", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error al actualizar el estado del incidente")
+            logger.error("Error al actualizar estado del incidente $id: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error al actualizar el estado del incidente"))
         }
     }
 
@@ -128,10 +200,28 @@ class IncidenteController(
         @RequestParam latitud: Double,
         @RequestParam longitud: Double,
         @RequestParam(defaultValue = "5.0") radioKm: Double
-    ): ResponseEntity<List<Incidente>> {
+    ): ResponseEntity<Any> {
         logger.info("Buscando incidentes cercanos a latitud: $latitud, longitud: $longitud, radio: $radioKm km")
-        val incidentes = incidenteService.buscarCercanos(latitud, longitud, radioKm)
-        return ResponseEntity.ok(incidentes)
+        return try {
+            val incidentes = incidenteService.buscarCercanos(latitud, longitud, radioKm)
+            ResponseEntity.ok(
+                mapOf(
+                    "mensaje" to "Búsqueda completada",
+                    "parametros" to mapOf(
+                        "latitud" to latitud,
+                        "longitud" to longitud,
+                        "radioKm" to radioKm
+                    ),
+                    "total" to incidentes.size,
+                    "incidentes" to incidentes
+                )
+            )
+        } catch (e: Exception) {
+            logger.error("Error al buscar incidentes cercanos: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error al buscar incidentes cercanos"))
+        }
     }
 }
 

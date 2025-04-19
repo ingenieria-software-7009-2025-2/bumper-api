@@ -20,28 +20,44 @@ class UsuarioController(private val usuarioService: UsuarioService) {
     @PostMapping("/create")
     fun registrarUsuario(@RequestBody usuarioRequest: UsuarioRequest): ResponseEntity<Any> {
         logger.info("Registrando nuevo usuario con correo: ${usuarioRequest.correo}")
+
         return try {
+            // Validación básica
+            if (!usuarioRequest.correo.matches(Regex("^[A-Za-z0-9+_.-]+@(.+)$"))) {
+                return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(mapOf("mensaje" to "Correo electrónico inválido"))
+            }
+
             val usuario = Usuario(
                 nombre = usuarioRequest.nombre,
                 apellido = usuarioRequest.apellido,
                 correo = usuarioRequest.correo,
                 password = usuarioRequest.password
-                // Los demás campos usarán sus valores por defecto
             )
 
-            // Validación básica
-            if (!usuario.isValidEmail()) {
-                return ResponseEntity
-                    .status(HttpStatus.BAD_REQUEST)
-                    .body("Correo electrónico inválido")
-            }
-
             val usuarioGuardado = usuarioService.registrarUsuario(usuario)
-            ResponseEntity.status(HttpStatus.CREATED).body(usuarioGuardado)
+            ResponseEntity.status(HttpStatus.CREATED).body(
+                mapOf(
+                    "mensaje" to "Usuario registrado exitosamente",
+                    "usuario" to mapOf(
+                        "id" to usuarioGuardado.id,
+                        "nombre" to usuarioGuardado.nombre,
+                        "apellido" to usuarioGuardado.apellido,
+                        "correo" to usuarioGuardado.correo
+                    )
+                )
+            )
+        } catch (e: IllegalStateException) {
+            logger.warn("Error de validación al registrar usuario: ${e.message}")
+            ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(mapOf("mensaje" to e.message))
         } catch (e: Exception) {
             logger.error("Error al registrar usuario: ${e.message}", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error al registrar usuario")
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error interno al registrar usuario"))
         }
     }
 
@@ -51,11 +67,30 @@ class UsuarioController(private val usuarioService: UsuarioService) {
     @GetMapping("/correo/{correo}")
     fun obtenerPorCorreo(@PathVariable correo: String): ResponseEntity<Any> {
         logger.info("Buscando usuario por correo: $correo")
-        val usuario = usuarioService.buscarPorCorreo(correo)
-        return if (usuario != null) {
-            ResponseEntity.ok(usuario)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado")
+        return try {
+            val usuario = usuarioService.buscarPorCorreo(correo)
+            if (usuario != null) {
+                ResponseEntity.ok(mapOf(
+                    "mensaje" to "Usuario encontrado",
+                    "usuario" to mapOf(
+                        "id" to usuario.id,
+                        "nombre" to usuario.nombre,
+                        "apellido" to usuario.apellido,
+                        "correo" to usuario.correo,
+                        "numeroIncidentes" to usuario.numeroIncidentes,
+                        "fechaRegistro" to usuario.fechaRegistro
+                    )
+                ))
+            } else {
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(mapOf("mensaje" to "Usuario no encontrado"))
+            }
+        } catch (e: Exception) {
+            logger.error("Error al buscar usuario por correo: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error al buscar usuario"))
         }
     }
 
@@ -65,11 +100,30 @@ class UsuarioController(private val usuarioService: UsuarioService) {
     @GetMapping("/{id}")
     fun obtenerPorId(@PathVariable id: Long): ResponseEntity<Any> {
         logger.info("Buscando usuario por ID: $id")
-        val usuario = usuarioService.buscarPorId(id)
-        return if (usuario != null) {
-            ResponseEntity.ok(usuario)
-        } else {
-            ResponseEntity.status(HttpStatus.NOT_FOUND).body("Usuario no encontrado")
+        return try {
+            val usuario = usuarioService.buscarPorId(id)
+            if (usuario != null) {
+                ResponseEntity.ok(mapOf(
+                    "mensaje" to "Usuario encontrado",
+                    "usuario" to mapOf(
+                        "id" to usuario.id,
+                        "nombre" to usuario.nombre,
+                        "apellido" to usuario.apellido,
+                        "correo" to usuario.correo,
+                        "numeroIncidentes" to usuario.numeroIncidentes,
+                        "fechaRegistro" to usuario.fechaRegistro
+                    )
+                ))
+            } else {
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(mapOf("mensaje" to "Usuario no encontrado"))
+            }
+        } catch (e: Exception) {
+            logger.error("Error al buscar usuario por ID: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error al buscar usuario"))
         }
     }
 
@@ -80,11 +134,22 @@ class UsuarioController(private val usuarioService: UsuarioService) {
     fun actualizarToken(@RequestBody tokenRequest: TokenRequest): ResponseEntity<Any> {
         logger.info("Actualizando token para usuario: ${tokenRequest.correo}")
         return try {
-            usuarioService.actualizarToken(tokenRequest.correo, tokenRequest.token)
-            ResponseEntity.ok("Token actualizado correctamente")
+            val actualizado = usuarioService.actualizarToken(tokenRequest.correo, tokenRequest.token)
+            if (actualizado) {
+                ResponseEntity.ok(mapOf(
+                    "mensaje" to "Token actualizado correctamente",
+                    "correo" to tokenRequest.correo
+                ))
+            } else {
+                ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(mapOf("mensaje" to "No se pudo actualizar el token. Usuario no encontrado"))
+            }
         } catch (e: Exception) {
             logger.error("Error al actualizar token: ${e.message}", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar token")
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error al actualizar token"))
         }
     }
 
@@ -95,6 +160,13 @@ class UsuarioController(private val usuarioService: UsuarioService) {
     fun actualizarUsuario(@RequestBody usuarioRequest: UsuarioUpdateRequest): ResponseEntity<Any> {
         logger.info("Actualizando usuario con ID: ${usuarioRequest.id}")
         return try {
+            // Validación básica del correo
+            if (!usuarioRequest.correo.matches(Regex("^[A-Za-z0-9+_.-]+@(.+)$"))) {
+                return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(mapOf("mensaje" to "Correo electrónico inválido"))
+            }
+
             val usuario = Usuario(
                 id = usuarioRequest.id,
                 nombre = usuarioRequest.nombre,
@@ -104,14 +176,34 @@ class UsuarioController(private val usuarioService: UsuarioService) {
                 token = usuarioRequest.token,
                 numeroIncidentes = usuarioRequest.numeroIncidentes
             )
+
             val usuarioActualizado = usuarioService.actualizarUsuario(usuario)
-            ResponseEntity.ok(usuarioActualizado)
+            ResponseEntity.ok(mapOf(
+                "mensaje" to "Usuario actualizado correctamente",
+                "usuario" to mapOf(
+                    "id" to usuarioActualizado.id,
+                    "nombre" to usuarioActualizado.nombre,
+                    "apellido" to usuarioActualizado.apellido,
+                    "correo" to usuarioActualizado.correo,
+                    "numeroIncidentes" to usuarioActualizado.numeroIncidentes,
+                    "fechaRegistro" to usuarioActualizado.fechaRegistro
+                )
+            ))
+        } catch (e: IllegalStateException) {
+            logger.warn("Error de validación al actualizar usuario: ${e.message}")
+            ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(mapOf("mensaje" to e.message))
         } catch (e: Exception) {
             logger.error("Error al actualizar usuario: ${e.message}", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error al actualizar usuario")
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error al actualizar usuario"))
         }
     }
 }
+
+// Los DTOs permanecen igual
 
 /**
  * DTO para registrar usuario.

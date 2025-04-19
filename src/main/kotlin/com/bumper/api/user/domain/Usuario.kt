@@ -2,7 +2,7 @@ package com.bumper.api.user.domain
 
 import jakarta.persistence.*
 import java.time.LocalDateTime
-import com.bumper.api.user.domain.Incidente
+
 
 @Entity
 @Table(name = "usuarios")

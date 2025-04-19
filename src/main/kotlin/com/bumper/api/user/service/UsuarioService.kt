@@ -31,8 +31,8 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
     /**
      * Actualiza el token de sesión del usuario.
      */
-    fun actualizarToken(correo: String, token: String) {
-        usuarioRepository.updateToken(correo, token)
+    fun actualizarToken(correo: String, token: String): Boolean {
+        return usuarioRepository.updateToken(correo, token)
     }
 
     /**

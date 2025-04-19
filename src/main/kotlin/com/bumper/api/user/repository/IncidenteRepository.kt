@@ -1,6 +1,7 @@
 package com.bumper.api.user.repository
 
 import com.bumper.api.user.domain.Incidente
+import com.bumper.api.user.domain.Usuario
 import com.bumper.api.user.domain.FotoIncidente
 import org.slf4j.LoggerFactory
 import org.springframework.dao.DataIntegrityViolationException
@@ -14,39 +15,41 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 
 @Repository
-class IncidenteRepository(
-    private val dataSource: DataSource,
-    private val usuarioRepository: UsuarioRepository
-) {
+class IncidenteRepository(private val dataSource: DataSource, private val usuarioRepository: UsuarioRepository) {
+
     private val logger = LoggerFactory.getLogger(javaClass)
     private val jdbcTemplate = JdbcTemplate(dataSource)
 
     private val incidenteRowMapper = RowMapper { rs, _ ->
-        try {
-            val usuarioId = rs.getLong("usuario_id")
-            val usuario = usuarioRepository.findById(usuarioId)
-                ?: run {
-                    logger.warn("Usuario no encontrado para el incidente ID: ${rs.getString("id")}, usuario_id: $usuarioId")
-                    return@RowMapper null
-                }
-
-            Incidente(
-                id = rs.getString("id"),
-                usuario = usuario,
-                tipoIncidente = rs.getString("tipo_incidente"),
-                ubicacion = rs.getString("ubicacion"),
-                latitud = rs.getDouble("latitud"),
-                longitud = rs.getDouble("longitud"),
-                horaIncidente = rs.getTimestamp("hora_incidente").toLocalDateTime(),
-                tipoVialidad = rs.getString("tipo_vialidad"),
-                estado = rs.getString("estado")
-            )
-        } catch (e: Exception) {
-            logger.error("Error al mapear incidente: ${e.message}", e)
-            null
-        }
+        Incidente(
+            id = rs.getString("id"),
+            usuario = Usuario(
+                id = rs.getLong("usuario_id"),
+                nombre = rs.getString("nombre_usuario"),
+                apellido = rs.getString("apellido_usuario"),
+                correo = rs.getString("correo_usuario"),
+                password = rs.getString("password_usuario"),
+                token = rs.getString("token_usuario") ?: "inactivo",
+                numeroIncidentes = rs.getInt("numero_incidentes_usuario"),
+                fechaRegistro = rs.getTimestamp("fecha_registro_usuario")?.toLocalDateTime() ?: LocalDateTime.now()
+            ),
+            tipoIncidente = rs.getString("tipo_incidente"),
+            ubicacion = rs.getString("ubicacion"),
+            latitud = rs.getDouble("latitud"),
+            longitud = rs.getDouble("longitud"),
+            horaIncidente = rs.getTimestamp("hora_incidente").toLocalDateTime(),
+            tipoVialidad = rs.getString("tipo_vialidad"),
+            estado = rs.getString("estado")
+        )
     }
 
+    /**
+     * Guarda un nuevo incidente en la base de datos, generando un ID único basado en la fecha, tipo de incidente y tipo de vialidad.
+     * Valida la existencia del usuario asociado y maneja errores de integridad o excepciones generales.
+     * @param incidente El incidente a guardar
+     * @return El incidente guardado con su ID asignado
+     * @throws IllegalStateException Si el usuario no existe o no se puede guardar/recuperar el incidente
+     */
     @Transactional
     fun save(incidente: Incidente): Incidente {
         try {
@@ -91,52 +94,54 @@ class IncidenteRepository(
     }
 
     fun findAll(): List<Incidente> {
-        val sql = "SELECT * FROM incidentes ORDER BY hora_incidente DESC"
+        val sql = """
+        SELECT 
+            i.*,
+            u.id as usuario_id,
+            u.nombre as nombre_usuario,
+            u.apellido as apellido_usuario,
+            u.correo as correo_usuario,
+            u.password as password_usuario,
+            u.token as token_usuario,
+            u.numero_incidentes as numero_incidentes_usuario,
+            u.fecha_registro as fecha_registro_usuario
+        FROM incidentes i
+        INNER JOIN usuarios u ON i.usuario_id = u.id
+        ORDER BY i.hora_incidente DESC
+    """
+
         return try {
             jdbcTemplate.query(sql, incidenteRowMapper)
-                .filterNotNull() // Filtra los incidentes que no se pudieron mapear
-                .map { incidente ->
-                    incidente.copyWithFotos(getFotosIncidente(incidente.id!!))
-                }
         } catch (e: Exception) {
             logger.error("Error al obtener todos los incidentes: ${e.message}", e)
             emptyList()
         }
     }
 
-    fun findByUsuarioId(usuarioId: Long): List<Incidente> {
-        // Primero verifica que el usuario existe
-        if (!usuarioRepository.existsById(usuarioId)) {
-            logger.warn("Usuario no encontrado con ID: $usuarioId")
-            return emptyList()
-        }
 
-        val sql = "SELECT * FROM incidentes WHERE usuario_id = ? ORDER BY hora_incidente DESC"
+    fun findByUsuarioId(usuarioId: Long): List<Incidente> {
+        val sql = """
+        SELECT 
+            i.*,
+            u.id as usuario_id,
+            u.nombre as nombre_usuario,
+            u.apellido as apellido_usuario,
+            u.correo as correo_usuario,
+            u.password as password_usuario,
+            u.token as token_usuario,
+            u.numero_incidentes as numero_incidentes_usuario,
+            u.fecha_registro as fecha_registro_usuario
+        FROM incidentes i
+        INNER JOIN usuarios u ON i.usuario_id = u.id
+        WHERE i.usuario_id = ?
+        ORDER BY i.hora_incidente DESC
+    """
+
         return try {
             jdbcTemplate.query(sql, incidenteRowMapper, usuarioId)
-                .filterNotNull()
-                .map { incidente ->
-                    incidente.copyWithFotos(getFotosIncidente(incidente.id!!))
-                }
         } catch (e: Exception) {
             logger.error("Error al buscar incidentes por usuario ID $usuarioId: ${e.message}", e)
             emptyList()
-        }
-    }
-
-    @Transactional(readOnly = true)
-    fun findById(id: String): Incidente? {
-        val sql = "SELECT * FROM incidentes WHERE id = ?"
-        return try {
-            jdbcTemplate.query(sql, incidenteRowMapper, id)
-                .filterNotNull()
-                .firstOrNull()
-                ?.let { incidente ->
-                    incidente.copyWithFotos(getFotosIncidente(id))
-                }
-        } catch (e: Exception) {
-            logger.error("Error al buscar incidente por ID $id: ${e.message}", e)
-            null
         }
     }
 
@@ -179,15 +184,54 @@ class IncidenteRepository(
         }
     }
 
+    @Transactional(readOnly = true)
+    fun findById(id: String): Incidente? {
+        val sql = """
+        SELECT 
+            i.*,
+            u.id as usuario_id,
+            u.nombre as nombre_usuario,
+            u.apellido as apellido_usuario,
+            u.correo as correo_usuario,
+            u.password as password_usuario,
+            u.token as token_usuario,
+            u.numero_incidentes as numero_incidentes_usuario,
+            u.fecha_registro as fecha_registro_usuario
+        FROM incidentes i
+        INNER JOIN usuarios u ON i.usuario_id = u.id
+        WHERE i.id = ?
+    """
+        return try {
+            jdbcTemplate.query(sql, incidenteRowMapper, id)
+                .firstOrNull()
+                ?.let { incidente ->
+                    incidente.copyWithFotos(getFotosIncidente(id))
+                }
+        } catch (e: Exception) {
+            logger.error("Error al buscar incidente por ID $id: ${e.message}", e)
+            null
+        }
+    }
+
     fun findByEstado(estado: String): List<Incidente> {
         val sql = """
-            SELECT * FROM incidentes 
-            WHERE estado = ? 
-            ORDER BY hora_incidente DESC
-        """
+        SELECT 
+            i.*,
+            u.id as usuario_id,
+            u.nombre as nombre_usuario,
+            u.apellido as apellido_usuario,
+            u.correo as correo_usuario,
+            u.password as password_usuario,
+            u.token as token_usuario,
+            u.numero_incidentes as numero_incidentes_usuario,
+            u.fecha_registro as fecha_registro_usuario
+        FROM incidentes i
+        INNER JOIN usuarios u ON i.usuario_id = u.id
+        WHERE i.estado = ? 
+        ORDER BY i.hora_incidente DESC
+    """
         return try {
             jdbcTemplate.query(sql, incidenteRowMapper, estado)
-                .filterNotNull()
                 .map { incidente ->
                     incidente.copyWithFotos(getFotosIncidente(incidente.id!!))
                 }
@@ -197,29 +241,46 @@ class IncidenteRepository(
         }
     }
 
+
+    /**
+     * Busca incidentes cercanos a una ubicación geográfica usando la fórmula Haversine para calcular la distancia.
+     * Filtra los resultados dentro de un radio especificado (en km) y los ordena por distancia y fecha descendente.
+     * @param latitud Latitud del punto central
+     * @param longitud Longitud del punto central
+     * @param radioKm Radio de búsqueda en kilómetros
+     * @return Lista de incidentes cercanos con sus fotos asociadas
+     */
     fun findNearby(latitud: Double, longitud: Double, radioKm: Double): List<Incidente> {
-        // Fórmula Haversine para calcular distancia
         val sql = """
-            SELECT *, 
-                (6371 * acos(
-                    cos(radians(?)) * cos(radians(latitud)) *
-                    cos(radians(longitud) - radians(?)) +
-                    sin(radians(?)) * sin(radians(latitud))
-                )) as distancia
-            FROM incidentes 
-            HAVING distancia <= ?
-            ORDER BY distancia, hora_incidente DESC
-        """
+        SELECT 
+            i.*,
+            u.id as usuario_id,
+            u.nombre as nombre_usuario,
+            u.apellido as apellido_usuario,
+            u.correo as correo_usuario,
+            u.password as password_usuario,
+            u.token as token_usuario,
+            u.numero_incidentes as numero_incidentes_usuario,
+            u.fecha_registro as fecha_registro_usuario,
+            (6371 * acos(
+                cos(radians(?)) * cos(radians(i.latitud)) *
+                cos(radians(i.longitud) - radians(?)) +
+                sin(radians(?)) * sin(radians(i.latitud))
+            )) as distancia
+        FROM incidentes i
+        INNER JOIN usuarios u ON i.usuario_id = u.id
+        HAVING distancia <= ?
+        ORDER BY distancia, i.hora_incidente DESC
+    """
 
         return try {
             jdbcTemplate.query(
                 sql,
                 incidenteRowMapper,
                 latitud, longitud, latitud, radioKm
-            ).filterNotNull()
-                .map { incidente ->
-                    incidente.copyWithFotos(getFotosIncidente(incidente.id!!))
-                }
+            ).map { incidente ->
+                incidente.copyWithFotos(getFotosIncidente(incidente.id!!))
+            }
         } catch (e: Exception) {
             logger.error("Error al buscar incidentes cercanos: ${e.message}", e)
             emptyList()
