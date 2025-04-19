@@ -38,7 +38,6 @@ data class Incidente(
     @OneToMany(mappedBy = "incidenteId", cascade = [CascadeType.ALL], fetch = FetchType.LAZY)
     val fotos: List<FotoIncidente> = emptyList()
 ) {
-    // Método para facilitar la copia con fotos actualizadas
     fun copyWithFotos(newFotos: List<FotoIncidente>): Incidente {
         return this.copy(fotos = newFotos)
     }

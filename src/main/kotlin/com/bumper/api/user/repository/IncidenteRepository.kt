@@ -25,23 +25,22 @@ class IncidenteRepository(
         try {
             val usuarioId = rs.getLong("usuario_id")
             val usuario = usuarioRepository.findById(usuarioId)
+                ?: run {
+                    logger.warn("Usuario no encontrado para el incidente ID: ${rs.getString("id")}, usuario_id: $usuarioId")
+                    return@RowMapper null
+                }
 
-            if (usuario == null) {
-                logger.warn("Usuario no encontrado para el incidente ID: ${rs.getString("id")}, usuario_id: $usuarioId")
-                null // Retornará null en lugar de lanzar excepción
-            } else {
-                Incidente(
-                    id = rs.getString("id"),
-                    usuario = usuario,
-                    tipoIncidente = rs.getString("tipo_incidente"),
-                    ubicacion = rs.getString("ubicacion"),
-                    latitud = rs.getDouble("latitud"),
-                    longitud = rs.getDouble("longitud"),
-                    horaIncidente = rs.getTimestamp("hora_incidente").toLocalDateTime(),
-                    tipoVialidad = rs.getString("tipo_vialidad"),
-                    estado = rs.getString("estado")
-                )
-            }
+            Incidente(
+                id = rs.getString("id"),
+                usuario = usuario,
+                tipoIncidente = rs.getString("tipo_incidente"),
+                ubicacion = rs.getString("ubicacion"),
+                latitud = rs.getDouble("latitud"),
+                longitud = rs.getDouble("longitud"),
+                horaIncidente = rs.getTimestamp("hora_incidente").toLocalDateTime(),
+                tipoVialidad = rs.getString("tipo_vialidad"),
+                estado = rs.getString("estado")
+            )
         } catch (e: Exception) {
             logger.error("Error al mapear incidente: ${e.message}", e)
             null
@@ -51,7 +50,6 @@ class IncidenteRepository(
     @Transactional
     fun save(incidente: Incidente): Incidente {
         try {
-            // Verificar que el usuario existe antes de intentar guardar
             if (!usuarioRepository.existsById(incidente.usuario.id)) {
                 throw IllegalStateException("El usuario con ID ${incidente.usuario.id} no existe")
             }
@@ -62,12 +60,12 @@ class IncidenteRepository(
             logger.info("Guardando incidente con ID generado: $idGenerado")
 
             val sql = """
-                INSERT INTO incidentes (
-                    id, usuario_id, tipo_incidente, ubicacion, 
-                    latitud, longitud, tipo_vialidad, 
-                    estado, hora_incidente
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
+            INSERT INTO incidentes (
+                id, usuario_id, tipo_incidente, ubicacion, 
+                latitud, longitud, tipo_vialidad, 
+                estado, hora_incidente
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
 
             jdbcTemplate.update(sql,
                 idGenerado,
@@ -83,7 +81,6 @@ class IncidenteRepository(
 
             return findById(idGenerado)
                 ?: throw IllegalStateException("No se pudo recuperar el incidente guardado")
-
         } catch (e: DataIntegrityViolationException) {
             logger.error("Error de integridad de datos al guardar incidente: ${e.message}", e)
             throw IllegalStateException("Error al guardar el incidente: violación de restricciones de la base de datos")

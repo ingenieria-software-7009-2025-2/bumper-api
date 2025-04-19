@@ -23,12 +23,11 @@ class IncidenteController(
     @PostMapping("/create")
     fun registrarIncidente(@RequestBody request: IncidenteRequest): ResponseEntity<Any> {
         logger.info("Recibida solicitud para registrar incidente: $request")
-
         return try {
-            val usuario = usuarioService.buscarPorId(request.usuarioId) // Cambiado de obtenerPorId a buscarPorId
+            val usuario = usuarioService.buscarPorId(request.usuarioId)
                 ?: return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
-                    .body("Usuario no encontrado")
+                    .body(mapOf("mensaje" to "Usuario no encontrado"))
 
             val incidente = Incidente(
                 usuario = usuario,
@@ -42,14 +41,12 @@ class IncidenteController(
             )
 
             val incidenteCreado = incidenteService.crear(incidente)
-            logger.info("Incidente registrado exitosamente con ID: ${incidenteCreado.id}")
-
             ResponseEntity.status(HttpStatus.CREATED).body(incidenteCreado)
         } catch (e: Exception) {
             logger.error("Error al registrar incidente: ${e.message}", e)
             ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error al registrar el incidente: ${e.message}")
+                .body(mapOf("mensaje" to "Error al registrar el incidente: ${e.message}"))
         }
     }
 

@@ -77,14 +77,11 @@ class FotoIncidenteService(
     @Transactional
     fun eliminarFotosPorIncidente(incidenteId: String, usuarioId: Long) {
         logger.info("Intentando eliminar todas las fotos del incidente: $incidenteId")
-
         val incidente = incidenteRepository.findById(incidenteId)
             ?: throw IllegalArgumentException("Incidente no encontrado: $incidenteId")
-
         if (incidente.usuario.id != usuarioId) {
             throw IllegalArgumentException("No tienes permiso para eliminar las fotos de este incidente")
         }
-
         val fotosEliminadas = fotoIncidenteRepository.deleteByIncidenteId(incidenteId)
         logger.info("$fotosEliminadas fotos eliminadas del incidente $incidenteId")
     }
