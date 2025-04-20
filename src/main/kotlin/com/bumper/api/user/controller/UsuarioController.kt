@@ -153,6 +153,68 @@ class UsuarioController(private val usuarioService: UsuarioService) {
         }
     }
 
+    @PostMapping("/login")
+    fun login(@RequestBody loginRequest: LoginRequest): ResponseEntity<Any> {
+        logger.info("Intento de login para usuario: ${loginRequest.correo}")
+
+        return try {
+            val usuario = usuarioService.validarCredenciales(
+                loginRequest.correo,
+                loginRequest.password
+            )
+
+            // Genera un token único
+            val token = generarToken(usuario.id)
+
+            // Actualiza el token en la base de datos
+            usuarioService.actualizarToken(usuario.correo, token)
+
+            ResponseEntity.ok(mapOf(
+                "mensaje" to "Login exitoso",
+                "usuario" to mapOf(
+                    "id" to usuario.id,
+                    "nombre" to usuario.nombre,
+                    "apellido" to usuario.apellido,
+                    "correo" to usuario.correo
+                ),
+                "token" to token
+            ))
+        } catch (e: IllegalArgumentException) {
+            ResponseEntity
+                .status(HttpStatus.UNAUTHORIZED)
+                .body(mapOf("mensaje" to "Credenciales inválidas"))
+        } catch (e: Exception) {
+            logger.error("Error en login: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error en el servidor"))
+        }
+    }
+
+    private fun generarToken(userId: Long): String {
+        val timestamp = System.currentTimeMillis()
+        return "usr_${userId}_$timestamp"
+    }
+
+
+    @PostMapping("/logout")
+    fun logout(@RequestBody logoutRequest: LogoutRequest): ResponseEntity<Any> {
+        return try {
+            usuarioService.actualizarToken(logoutRequest.correo, "")
+            ResponseEntity.ok(mapOf(
+                "mensaje" to "Sesión cerrada correctamente"
+            ))
+        } catch (e: Exception) {
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error al cerrar sesión"))
+        }
+    }
+
+    data class LogoutRequest(
+        val correo: String
+    )
+
     /**
      * Endpoint para actualizar los datos de un usuario.
      */
@@ -221,6 +283,11 @@ data class UsuarioRequest(
 data class TokenRequest(
     val correo: String,
     val token: String
+)
+
+data class LoginRequest(
+    val correo: String,
+    val password: String
 )
 
 /**

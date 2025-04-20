@@ -152,5 +152,4 @@ class UsuarioRepository(private val dataSource: DataSource) {
             false
         }
     }
-
 }

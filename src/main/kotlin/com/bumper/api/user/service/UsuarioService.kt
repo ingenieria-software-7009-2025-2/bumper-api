@@ -29,16 +29,24 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
     }
 
     /**
-     * Actualiza el token de sesión del usuario.
-     */
-    fun actualizarToken(correo: String, token: String): Boolean {
-        return usuarioRepository.updateToken(correo, token)
-    }
-
-    /**
      * Actualiza los datos de un usuario.
      */
     fun actualizarUsuario(usuario: Usuario): Usuario {
         return usuarioRepository.update(usuario)
+    }
+
+    fun validarCredenciales(correo: String, password: String): Usuario {
+        val usuario = usuarioRepository.findByCorreo(correo)
+            ?: throw IllegalArgumentException("Usuario no encontrado")
+
+        if (usuario.password != password) { // En producción usar BCrypt
+            throw IllegalArgumentException("Contraseña incorrecta")
+        }
+
+        return usuario
+    }
+
+    fun actualizarToken(correo: String, token: String): Boolean {
+        return usuarioRepository.updateToken(correo, token)
     }
 }
