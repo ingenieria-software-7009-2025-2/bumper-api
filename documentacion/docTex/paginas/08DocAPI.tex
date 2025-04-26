@@ -1,147 +1,191 @@
-\subsection*{\faServer\ 1. Crear un nuevo usuario}
+\section*{Documentación de la API REST}
 
+% ================ USUARIOS ================
+
+\subsection*{\faUser\ Endpoints de Usuarios}
+
+\subsection*{\faServer\ 1. Registrar Usuario}
 \begin{tcolorbox}[endpoint]
     \textbf{POST} \texttt{/v1/users/create}\\
-    Crea un nuevo usuario en la base de datos.
+    Registra un nuevo usuario en el sistema.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
     \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/users/create}}\\
     \textbf{Método:} \textcolor{methodColor}{\texttt{POST}}\\
-    \textbf{Headers:}\\
-    \textcolor{headerColor}{\texttt{Content-Type: application/json}}
-    
+    \textbf{Headers:} \textcolor{headerColor}{\texttt{Content-Type: application/json}}\\
     \textbf{Body:}
-    \begin{minted}[frame=single,
-                   framesep=2mm,
-                   bgcolor=gray!10,
-                   fontsize=\small]{json}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "nombre": "Juan",
-    "apellido": "Perez",
+    "apellido": "Pérez",
     "correo": "juan@example.com",
-    "password": "1234",
-    "token": "inactivo",
-    "numeroIncidentes": 0
+    "password": "secreto123"
 }
     \end{minted}
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
     \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 201}
-    \begin{minted}[frame=single,
-                   framesep=2mm,
-                   bgcolor=gray!10,
-                   fontsize=\small]{json}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
-    "id": 1,
-    "nombre": "Juan",
-    "apellido": "Perez",
-    "correo": "juan@example.com",
-    "password": "1234",
-    "token": "inactivo",
-    "numeroIncidentes": 0,
-    "incidentes": []
+    "mensaje": "Usuario registrado exitosamente",
+    "usuario": {
+        "id": 1,
+        "nombre": "Juan",
+        "apellido": "Pérez",
+        "correo": "juan@example.com",
+        "token": "inactivo",
+        "numeroIncidentes": 0,
+        "fechaRegistro": "2025-04-26T10:30:00"
+    }
 }
     \end{minted}
-    
-    \textbf{Posibles Errores} \faExclamationTriangle
+    \textbf{Errores}
     \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 400} - Datos inválidos
-        \item \textcolor{errorColor}{HTTP 409} - Correo ya existe
+        \item \textcolor{errorColor}{HTTP 400} - Correo electrónico inválido
+        \item \textcolor{errorColor}{HTTP 500} - Error interno del servidor
     \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[notes]
-    \faInfoCircle\ \textbf{Notas importantes:}
-    \begin{itemize}
-        \item El \texttt{id} será generado automáticamente
-        \item \texttt{token} inicia como "inactivo"
-        \item \texttt{numeroIncidentes} inicia en 0
-    \end{itemize}
-\end{tcolorbox}
+\newpage
 
-\subsection*{\faServer\ 2. Iniciar sesión (Login)}
-
+\subsection*{\faServer\ 2. Iniciar Sesión}
 \begin{tcolorbox}[endpoint]
     \textbf{POST} \texttt{/v1/users/login}\\
-    Inicia sesión y cambia el token a estado "activo".
+    Inicia sesión de un usuario en el sistema.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
     \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/users/login}}\\
     \textbf{Método:} \textcolor{methodColor}{\texttt{POST}}\\
-    \textbf{Headers:}\\
-    \textcolor{headerColor}{\texttt{Content-Type: application/json}}
-    
+    \textbf{Headers:} \textcolor{headerColor}{\texttt{Content-Type: application/json}}\\
     \textbf{Body:}
-    \begin{minted}[frame=single,
-                   framesep=2mm,
-                   bgcolor=gray!10,
-                   fontsize=\small]{json}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "correo": "juan@example.com",
-    "password": "1234"
+    "password": "secreto123"
 }
     \end{minted}
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
     \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
-    \begin{minted}[frame=single,
-                   framesep=2mm,
-                   bgcolor=gray!10,
-                   fontsize=\small]{json}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
-    "id": 1,
-    "nombre": "Juan",
-    "apellido": "Perez",
-    "correo": "juan@example.com",
-    "password": "1234",
-    "token": "activo",
-    "numeroIncidentes": 0,
-    "incidentes": []
+    "mensaje": "Login exitoso",
+    "usuario": {
+        "id": 1,
+        "nombre": "Juan",
+        "apellido": "Pérez",
+        "correo": "juan@example.com",
+        "token": "activo",
+        "numeroIncidentes": 0,
+        "fechaRegistro": "2025-04-26T10:30:00"
+    }
 }
     \end{minted}
-    
-    \textbf{Posibles Errores} \faExclamationTriangle
+    \textbf{Errores}
     \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 401} - Credenciales incorrectas
-        \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado
+        \item \textcolor{errorColor}{HTTP 401} - Credenciales inválidas
+        \item \textcolor{errorColor}{HTTP 500} - Error en el servidor
     \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[notes]
-    \faInfoCircle\ \textbf{Notas importantes:}
-    \begin{itemize}
-        \item El token cambiará automáticamente a "activo" tras un login exitoso
-        \item La sesión permanecerá activa hasta que se realice logout
-        \item Se recomienda almacenar el token para futuras peticiones
-    \end{itemize}
-\end{tcolorbox}
+\newpage
 
-\subsection*{\faServer\ 3. Crear un nuevo incidente}
-
+\subsection*{\faServer\ 3. Cerrar Sesión}
 \begin{tcolorbox}[endpoint]
-    \textbf{POST} \texttt{/v1/incidentes}\\
-    Crea un incidente asociado a un usuario específico.
+    \textbf{POST} \texttt{/v1/users/logout}\\
+    Cierra la sesión de un usuario.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
-    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/incidentes}}\\
+    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/users/logout}}\\
     \textbf{Método:} \textcolor{methodColor}{\texttt{POST}}\\
-    \textbf{Headers:}\\
-    \textcolor{headerColor}{\texttt{Content-Type: application/json}}
-    
+    \textbf{Headers:} \textcolor{headerColor}{\texttt{Content-Type: application/json}}\\
     \textbf{Body:}
-    \begin{minted}[frame=single,
-                   framesep=2mm,
-                   bgcolor=gray!10,
-                   fontsize=\small]{json}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "correo": "juan@example.com"
+}
+    \end{minted}
+\end{tcolorbox}
+
+\begin{tcolorbox}[response]
+    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "mensaje": "Sesión cerrada correctamente"
+}
+    \end{minted}
+    \textbf{Errores}
+    \begin{itemize}
+        \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado
+        \item \textcolor{errorColor}{HTTP 500} - Error al cerrar sesión
+    \end{itemize}
+\end{tcolorbox}
+
+\newpage
+
+\subsection*{\faServer\ 4. Obtener Usuario por Correo}
+\begin{tcolorbox}[endpoint]
+    \textbf{GET} \texttt{/v1/users/correo/\{correo\}}\\
+    Obtiene los datos de un usuario por su correo electrónico.
+\end{tcolorbox}
+
+\begin{tcolorbox}[request]
+    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/users/correo/juan@example.com}}\\
+    \textbf{Método:} \textcolor{methodColor}{\texttt{GET}}
+\end{tcolorbox}
+
+\begin{tcolorbox}[response]
+    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "mensaje": "Usuario encontrado",
+    "usuario": {
+        "id": 1,
+        "nombre": "Juan",
+        "apellido": "Pérez",
+        "correo": "juan@example.com",
+        "token": "activo",
+        "numeroIncidentes": 0,
+        "fechaRegistro": "2025-04-26T10:30:00"
+    }
+}
+    \end{minted}
+    \textbf{Errores}
+    \begin{itemize}
+        \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado
+        \item \textcolor{errorColor}{HTTP 500} - Error al buscar usuario
+    \end{itemize}
+\end{tcolorbox}
+
+\newpage
+
+% ================ INCIDENTES ================
+
+\subsection*{\faExclamationTriangle\ Endpoints de Incidentes}
+
+\subsection*{\faServer\ 5. Crear Incidente}
+\begin{tcolorbox}[endpoint]
+    \textbf{POST} \texttt{/v1/incidentes/create}\\
+    Registra un nuevo incidente en el sistema.
+\end{tcolorbox}
+
+\begin{tcolorbox}[request]
+    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/incidentes/create}}\\
+    \textbf{Método:} \textcolor{methodColor}{\texttt{POST}}\\
+    \textbf{Headers:} \textcolor{headerColor}{\texttt{Content-Type: application/json}}\\
+    \textbf{Body:}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "usuarioId": 1,
     "tipoIncidente": "BACHES",
     "ubicacion": "Av. Principal 123",
+    "latitud": 19.4326,
+    "longitud": -99.1332,
     "tipoVialidad": "AVENIDA"
 }
     \end{minted}
@@ -149,246 +193,190 @@
 
 \begin{tcolorbox}[response]
     \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 201}
-    \begin{minted}[frame=single,
-                   framesep=2mm,
-                   bgcolor=gray!10,
-                   fontsize=\small]{json}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
-    "id": 1,
-    "usuario": {
-        "id": 1,
-        "nombre": "Juan",
-        "apellido": "Perez",
-        "correo": "juan@example.com",
-        "password": "1234",
-        "token": "activo",
-        "numeroIncidentes": 1,
-        "incidentes": []
-    },
-    "tipoIncidente": "BACHES",
-    "ubicacion": "Av. Principal 123",
-    "horaIncidente": "2025-03-23T10:00:00",
-    "tipoVialidad": "AVENIDA"
+    "mensaje": "Incidente creado exitosamente",
+    "incidente": {
+        "id": "20250426103000_BAC_AVE",
+        "usuarioId": 1,
+        "tipoIncidente": "BACHES",
+        "ubicacion": "Av. Principal 123",
+        "latitud": 19.4326,
+        "longitud": -99.1332,
+        "tipoVialidad": "AVENIDA",
+        "estado": "PENDIENTE"
+    }
 }
     \end{minted}
-    
-    \textbf{Posibles Errores} \faExclamationTriangle
+    \textbf{Errores}
     \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 400} - Datos inválidos en el cuerpo de la solicitud
         \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado
+        \item \textcolor{errorColor}{HTTP 500} - Error al registrar el incidente
     \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[notes]
-    \faInfoCircle\ \textbf{Notas importantes:}
-    \begin{itemize}
-        \item El campo \texttt{usuarioId} debe corresponder a un usuario existente en la base de datos.
-        \item El campo \texttt{horaIncidente} será generado automáticamente por el sistema.
-        \item El tipo de vialidad (\texttt{tipoVialidad}) debe ser una categoría válida como \texttt{AVENIDA}, \texttt{CALLE}, etc.
-    \end{itemize}
-\end{tcolorbox}
+\newpage
 
-\subsection*{\faServer\ 4. Recuperar todos los incidentes}
-
+\subsection*{\faServer\ 6. Obtener Todos los Incidentes}
 \begin{tcolorbox}[endpoint]
-    \textbf{GET} \texttt{/v1/incidentes}\\
-    Lista todos los incidentes registrados en la base de datos.
+    \textbf{GET} \texttt{/v1/incidentes/all}\\
+    Obtiene todos los incidentes registrados en el sistema.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
-    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/incidentes}}\\
-    \textbf{Método:} \textcolor{methodColor}{\texttt{GET}}\\
-    \textbf{Headers:} (ninguno requerido)\\
-    \textbf{Body:} (ninguno)
+    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/incidentes/all}}\\
+    \textbf{Método:} \textcolor{methodColor}{\texttt{GET}}
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
     \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
-    \begin{minted}[frame=single,
-                   framesep=2mm,
-                   bgcolor=gray!10,
-                   fontsize=\small]{json}
-[
-    {
-        "id": 1,
-        "usuario": {
-            "id": 1,
-            "nombre": "Juan",
-            "apellido": "Perez",
-            "correo": "juan@example.com",
-            "password": "1234",
-            "token": "activo",
-            "numeroIncidentes": 1,
-            "incidentes": []
-        },
-        "tipoIncidente": "BACHES",
-        "ubicacion": "Av. Principal 123",
-        "horaIncidente": "2025-03-23T10:00:00",
-        "tipoVialidad": "AVENIDA"
-    }
-]
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "mensaje": "Incidentes encontrados",
+    "total": 1,
+    "incidentes": [
+        {
+            "id": "20250426103000_BAC_AVE",
+            "usuarioId": 1,
+            "tipoIncidente": "BACHES",
+            "ubicacion": "Av. Principal 123",
+            "latitud": 19.4326,
+            "longitud": -99.1332,
+            "tipoVialidad": "AVENIDA",
+            "estado": "PENDIENTE"
+        }
+    ]
+}
     \end{minted}
-    
-    \textbf{Posibles Errores} \faExclamationTriangle
+    \textbf{Errores}
     \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 500} - Error interno del servidor
+        \item \textcolor{errorColor}{HTTP 500} - Error al obtener los incidentes
     \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[notes]
-    \faInfoCircle\ \textbf{Notas importantes:}
-    \begin{itemize}
-        \item Este endpoint devuelve todos los incidentes registrados en el sistema, sin filtros.
-        \item Si no hay incidentes registrados, devuelve una lista vacía (\texttt{[]}).
-        \item Se recomienda implementar paginación en caso de grandes volúmenes de datos.
-    \end{itemize}
-\end{tcolorbox}
+\newpage
 
-
-
-\subsection*{\faServer\ 5. Recuperar incidentes por usuario}
-
+\subsection*{\faServer\ 7. Obtener Incidentes por Usuario}
 \begin{tcolorbox}[endpoint]
     \textbf{GET} \texttt{/v1/incidentes/usuario/\{usuarioId\}}\\
-    Lista los incidentes asociados a un usuario específico.
+    Obtiene todos los incidentes asociados a un usuario específico.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
     \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/incidentes/usuario/1}}\\
-    \textbf{Método:} \textcolor{methodColor}{\texttt{GET}}\\
-    \textbf{Headers:} (ninguno requerido)\\
-    \textbf{Body:} (ninguno)
+    \textbf{Método:} \textcolor{methodColor}{\texttt{GET}}
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
     \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
-    \begin{minted}[frame=single,
-                   framesep=2mm,
-                   bgcolor=gray!10,
-                   fontsize=\small]{json}
-[
-    {
-        "id": 1,
-        "usuario": {
-            "id": 1,
-            "nombre": "Juan",
-            "apellido": "Perez",
-            "correo": "juan@example.com",
-            "password": "1234",
-            "token": "activo",
-            "numeroIncidentes": 1,
-            "incidentes": []
-        },
-        "tipoIncidente": "BACHES",
-        "ubicacion": "Av. Principal 123",
-        "horaIncidente": "2025-03-23T10:00:00",
-        "tipoVialidad": "AVENIDA"
-    }
-]
-    \end{minted}
-    
-    \textbf{Posibles Errores} \faExclamationTriangle
-    \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 400} - El parámetro \texttt{\{usuarioId\}} no es válido.
-        \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado o sin incidentes asociados.
-    \end{itemize}
-\end{tcolorbox}
-
-\begin{tcolorbox}[notes]
-    \faInfoCircle\ \textbf{Notas importantes:}
-    \begin{itemize}
-        \item El parámetro \texttt{\{usuarioId\}} debe coincidir con un ID existente en la base de datos.
-        \item Si el usuario no tiene incidentes registrados, el sistema devuelve una lista vacía (\texttt{[]}).
-        \item Este endpoint es útil para filtrar incidentes por usuario específico.
-    \end{itemize}
-\end{tcolorbox}
-
-\subsection*{\faServer\ 6. Obtener información del usuario (verificación)}
-
-\begin{tcolorbox}[endpoint]
-    \textbf{GET} \texttt{/v1/users/me}\\
-    Obtiene los detalles del usuario, incluyendo el contador actualizado de incidentes.
-\end{tcolorbox}
-
-\begin{tcolorbox}[request]
-    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/users/me}}\\
-    \textbf{Método:} \textcolor{methodColor}{\texttt{GET}}\\
-    \textbf{Headers:}\\
-    \textcolor{headerColor}{\texttt{correo: juan@example.com}}\\
-    \textbf{Body:} (ninguno)
-\end{tcolorbox}
-
-\begin{tcolorbox}[response]
-    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
-    \begin{minted}[frame=single,
-                   framesep=2mm,
-                   bgcolor=gray!10,
-                   fontsize=\small]{json}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
-    "id": 1,
-    "nombre": "Juan",
-    "apellido": "Perez",
-    "correo": "juan@example.com",
-    "password": "1234",
-    "token": "activo",
-    "numeroIncidentes": 1,
-    "incidentes": []
+    "mensaje": "Incidentes encontrados para el usuario",
+    "usuario": {
+        "id": 1,
+        "nombre": "Juan Pérez"
+    },
+    "total": 1,
+    "incidentes": [
+        {
+            "id": "20250426103000_BAC_AVE",
+            "tipoIncidente": "BACHES",
+            "ubicacion": "Av. Principal 123",
+            "estado": "PENDIENTE"
+        }
+    ]
 }
     \end{minted}
-    
-    \textbf{Posibles Errores} \faExclamationTriangle
+    \textbf{Errores}
     \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 400} - Header \texttt{correo} no proporcionado o inválido.
-        \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado.
+        \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado
+        \item \textcolor{errorColor}{HTTP 500} - Error al obtener los incidentes
     \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[notes]
-    \faInfoCircle\ \textbf{Notas importantes:}
-    \begin{itemize}
-        \item Es obligatorio incluir un header \texttt{correo} válido para identificar al usuario.
-        \item El campo \texttt{numeroIncidentes} refleja el número actual de incidentes asociados al usuario.
-        \item Este endpoint muestra información sensible como \texttt{password} solo para fines demostrativos; en un entorno real, se recomienda omitir este campo.
-    \end{itemize}
-\end{tcolorbox}
+\newpage
 
-\subsection*{\faServer\ 7. Cerrar sesión (Logout)}
-
+\subsection*{\faServer\ 8. Actualizar Estado de Incidente}
 \begin{tcolorbox}[endpoint]
-    \textbf{POST} \texttt{/v1/users/logout}\\
-    Cierra la sesión del usuario cambiando el estado del token a \texttt{"inactivo"}.
+    \textbf{PUT} \texttt{/v1/incidentes/update-status/\{id\}?usuarioId=\{usuarioId\}}\\
+    Actualiza el estado de un incidente específico.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
-    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/users/logout}}\\
-    \textbf{Método:} \textcolor{methodColor}{\texttt{POST}}\\
-    \textbf{Headers:}\\
-    \textcolor{headerColor}{\texttt{correo: juan@example.com}}\\
-    \textbf{Body:} (ninguno)
+    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/incidentes/update-status/20250426103000\_BAC\_AVE?usuarioId=1}}\\
+    \textbf{Método:} \textcolor{methodColor}{\texttt{PUT}}\\
+    \textbf{Headers:} \textcolor{headerColor}{\texttt{Content-Type: application/json}}\\
+    \textbf{Body:}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "estado": "RESUELTO"
+}
+    \end{minted}
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
     \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
-    \begin{minted}[frame=single,
-                   framesep=2mm,
-                   bgcolor=gray!10,
-                   fontsize=\small]{text}
-"Sesion cerrada correctamente"
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "mensaje": "Estado actualizado correctamente",
+    "incidente": {
+        "id": "20250426103000_BAC_AVE",
+        "estado": "RESUELTO"
+    }
+}
     \end{minted}
-    
-    \textbf{Posibles Errores} \faExclamationTriangle
+    \textbf{Errores}
     \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 400} - Header \texttt{correo} no proporcionado o inválido.
-        \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado.
-        \item \textcolor{errorColor}{HTTP 500} - Error interno del servidor.
+        \item \textcolor{errorColor}{HTTP 403} - No tiene permiso para modificar este incidente
+        \item \textcolor{errorColor}{HTTP 404} - Incidente no encontrado
+        \item \textcolor{errorColor}{HTTP 500} - Error al actualizar el estado
     \end{itemize}
 \end{tcolorbox}
 
-\begin{tcolorbox}[notes]
-    \faInfoCircle\ \textbf{Notas importantes:}
+
+\newpage
+
+\subsection*{\faServer\ 9. Buscar Incidentes Cercanos}
+\begin{tcolorbox}[endpoint]
+    \textbf{GET} \texttt{/v1/incidentes/cercanos}\\
+    Busca incidentes cercanos a una ubicación geográfica.
+\end{tcolorbox}
+
+\begin{tcolorbox}[request]
+    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/incidentes/cercanos?latitud=19.4326\&longitud=-99.1332\&radioKm=5.0}}\\
+    \textbf{Método:} \textcolor{methodColor}{\texttt{GET}}\\
+    \textbf{Parámetros:}
     \begin{itemize}
-        \item El token del usuario se actualiza automáticamente a \texttt{"inactivo"} tras un logout exitoso.
-        \item Es obligatorio incluir el mismo header \texttt{correo} utilizado durante el login.
-        \item Se recomienda verificar el estado del token con el endpoint \texttt{GET /v1/users/me} después de cerrar sesión.
+        \item \texttt{latitud}: Latitud del punto central
+        \item \texttt{longitud}: Longitud del punto central
+        \item \texttt{radioKm}: Radio de búsqueda en kilómetros (default: 5.0)
+    \end{itemize}
+\end{tcolorbox}
+
+\begin{tcolorbox}[response]
+    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "mensaje": "Búsqueda completada",
+    "parametros": {
+        "latitud": 19.4326,
+        "longitud": -99.1332,
+        "radioKm": 5.0
+    },
+    "total": 1,
+    "incidentes": [
+        {
+            "id": "20250426103000_BAC_AVE",
+            "tipoIncidente": "BACHES",
+            "ubicacion": "Av. Principal 123",
+            "estado": "PENDIENTE",
+            "distancia": 0.5
+        }
+    ]
+}
+    \end{minted}
+    \textbf{Errores}
+    \begin{itemize}
+        \item \textcolor{errorColor}{HTTP 500} - Error al buscar incidentes cercanos
     \end{itemize}
 \end{tcolorbox}
