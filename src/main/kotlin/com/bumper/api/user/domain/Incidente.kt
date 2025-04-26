@@ -3,26 +3,20 @@ package com.bumper.api.user.domain
 import jakarta.persistence.*
 import java.time.LocalDateTime
 
-@Entity
 @Table(name = "incidentes")
 data class Incidente(
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    val id: Long? = null,
-
-    @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "usuario_id", nullable = false)
-    val usuario: Usuario,
-
-    @Column(name = "tipo_incidente", nullable = false)
+    val id: String? = null,
+    val usuarioId: Long,
     val tipoIncidente: String,
-
-    @Column(nullable = false)
     val ubicacion: String,
-
-    @Column(name = "hora_incidente", nullable = false)
-    val horaIncidente: LocalDateTime,
-
-    @Column(name = "tipo_vialidad", nullable = false)
-    val tipoVialidad: String
-)
+    val latitud: Double,
+    val longitud: Double,
+    val horaIncidente: LocalDateTime = LocalDateTime.now(),
+    val tipoVialidad: String,
+    val estado: String = "PENDIENTE",
+    val fotos: List<FotoIncidente> = emptyList()
+) {
+    fun copyWithFotos(newFotos: List<FotoIncidente>): Incidente {
+        return this.copy(fotos = newFotos)
+    }
+}
