@@ -17,6 +17,8 @@ class IncidenteController(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+
+
     /**
      * Endpoint para crear un nuevo incidente en el sistema.
      */
@@ -33,12 +35,11 @@ class IncidenteController(
                     ))
 
             val incidente = Incidente(
-                usuario = usuario,
+                usuarioId = request.usuarioId,
                 tipoIncidente = request.tipoIncidente,
                 ubicacion = request.ubicacion,
                 latitud = request.latitud,
                 longitud = request.longitud,
-                horaIncidente = LocalDateTime.now(),
                 tipoVialidad = request.tipoVialidad,
                 estado = "PENDIENTE"
             )

@@ -1,17 +1,15 @@
--- Tabla de Usuarios
 CREATE TABLE usuarios (
     id SERIAL PRIMARY KEY,
-    nombre VARCHAR(50) NOT NULL CHECK (length(trim(nombre)) > 0),
-    apellido VARCHAR(50) NOT NULL CHECK (length(trim(apellido)) > 0),
-    correo VARCHAR(100) NOT NULL UNIQUE
-      CHECK (correo ~* '^[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,}$'),
-    password VARCHAR(100) NOT NULL CHECK (length(password) >= 6),
-    token VARCHAR(20) DEFAULT 'inactivo'
-        CHECK (token IN ('activo', 'inactivo')),
-    numero_incidentes INTEGER DEFAULT 0
-        CHECK (numero_incidentes >= 0),
-    fecha_registro TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
-);
+    nombre VARCHAR(100) NOT NULL,
+    apellido VARCHAR(100) NOT NULL,
+    correo VARCHAR(100) UNIQUE NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    token VARCHAR(100) DEFAULT 'inactivo',
+    numero_incidentes INTEGER DEFAULT 0,
+    fecha_registro TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+    );
+
+CREATE INDEX IF NOT EXISTS idx_usuarios_correo ON usuarios(correo);
 
 -- Tabla de Incidentes (ID generado por el backend)
 CREATE TABLE incidentes (
@@ -39,14 +37,16 @@ CREATE INDEX idx_incidentes_usuario ON incidentes(usuario_id);
 CREATE INDEX idx_incidentes_fecha ON incidentes(hora_incidente DESC);
 CREATE INDEX idx_incidentes_usuario_id ON incidentes(usuario_id);
 CREATE INDEX idx_incidentes_estado ON incidentes(estado);
+CREATE INDEX idx_usuarios_token ON usuarios(token);
 
 -- Tabla de Fotos de Incidentes
 CREATE TABLE fotos_incidentes (
     id SERIAL PRIMARY KEY,
-    incidente_id VARCHAR(50) NOT NULL REFERENCES incidentes(id) ON DELETE CASCADE,
-    url_foto TEXT NOT NULL CHECK (url_foto ~ '^https?://'),
+    incidente_id VARCHAR(255) NOT NULL,
+    url_foto TEXT NOT NULL,
     descripcion TEXT,
-    fecha_subida TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP
+    fecha_subida TIMESTAMP NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    FOREIGN KEY (incidente_id) REFERENCES incidentes(id) ON DELETE CASCADE
 );
 
 -- Trigger para verificar límite de fotos por incidente

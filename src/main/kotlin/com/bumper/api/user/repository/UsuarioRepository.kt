@@ -4,9 +4,9 @@ import com.bumper.api.user.domain.Usuario
 import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
-import org.springframework.jdbc.support.GeneratedKeyHolder
 import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
+import java.sql.Timestamp
 import javax.sql.DataSource
 
 @Repository
@@ -29,38 +29,38 @@ class UsuarioRepository(private val dataSource: DataSource) {
 
     @Transactional
     fun save(usuario: Usuario): Usuario {
-        logger.info("Guardando nuevo usuario: ${usuario.correo}")
-
-        if (findByCorreo(usuario.correo) != null) {
-            throw IllegalStateException("Ya existe un usuario con el correo: ${usuario.correo}")
-        }
+        logger.info("Guardando usuario: ${usuario.correo}")
 
         val sql = """
-        INSERT INTO usuarios (
-            nombre, apellido, correo, password, token, numero_incidentes
-        ) VALUES (?, ?, ?, ?, ?, ?)
-    """
+            INSERT INTO usuarios (
+                nombre, apellido, correo, password, 
+                token, numero_incidentes, fecha_registro
+            ) VALUES (?, ?, ?, ?, ?, ?, ?)
+        """
 
-        val keyHolder = GeneratedKeyHolder()
-        jdbcTemplate.update({ connection ->
-            val ps = connection.prepareStatement(sql, arrayOf("id"))
-            ps.setString(1, usuario.nombre)
-            ps.setString(2, usuario.apellido)
-            ps.setString(3, usuario.correo)
-            ps.setString(4, usuario.password)
-            ps.setString(5, usuario.token ?: "inactivo")
-            ps.setInt(6, usuario.numeroIncidentes)
-            ps
-        }, keyHolder)
+        try {
+            // Primero insertamos el usuario
+            jdbcTemplate.update(sql,
+                usuario.nombre,
+                usuario.apellido,
+                usuario.correo,
+                usuario.password,
+                usuario.token,
+                usuario.numeroIncidentes,
+                Timestamp.valueOf(usuario.fechaRegistro)
+            )
 
-        val id = keyHolder.key?.toLong()
-            ?: throw IllegalStateException("No se pudo obtener el ID del usuario creado")
+            // Luego obtenemos el usuario recién creado por su correo
+            return findByCorreo(usuario.correo)
+                ?: throw IllegalStateException("No se pudo recuperar el usuario guardado")
 
-        return findById(id) ?: throw IllegalStateException("No se pudo recuperar el usuario creado")
+        } catch (e: Exception) {
+            logger.error("Error al guardar usuario: ${e.message}", e)
+            throw IllegalStateException("Error al guardar el usuario: ${e.message}")
+        }
     }
 
     fun findByCorreo(correo: String): Usuario? {
-        logger.info("Buscando usuario por correo: $correo")
         val sql = "SELECT * FROM usuarios WHERE correo = ?"
         return try {
             jdbcTemplate.query(sql, usuarioRowMapper, correo).firstOrNull()
@@ -71,6 +71,7 @@ class UsuarioRepository(private val dataSource: DataSource) {
     }
 
     fun findById(id: Long): Usuario? {
+        logger.info("Buscando usuario por ID: $id")
         val sql = "SELECT * FROM usuarios WHERE id = ?"
         return try {
             jdbcTemplate.query(sql, usuarioRowMapper, id).firstOrNull()
@@ -80,22 +81,12 @@ class UsuarioRepository(private val dataSource: DataSource) {
         }
     }
 
-    fun existsById(id: Long): Boolean {
-        val sql = "SELECT COUNT(*) FROM usuarios WHERE id = ?"
-        return try {
-            (jdbcTemplate.queryForObject(sql, Int::class.java, id) ?: 0) > 0
-        } catch (e: Exception) {
-            logger.error("Error al verificar existencia de usuario $id: ${e.message}", e)
-            false
-        }
-    }
-
     @Transactional
-    fun updateToken(correo: String, token: String): Boolean {
+    fun updateToken(correo: String, nuevoToken: String): Boolean {
         logger.info("Actualizando token para usuario: $correo")
         val sql = "UPDATE usuarios SET token = ? WHERE correo = ?"
         return try {
-            val rowsAffected = jdbcTemplate.update(sql, token, correo)
+            val rowsAffected = jdbcTemplate.update(sql, nuevoToken, correo)
             rowsAffected > 0
         } catch (e: Exception) {
             logger.error("Error al actualizar token para usuario $correo: ${e.message}", e)
@@ -103,52 +94,13 @@ class UsuarioRepository(private val dataSource: DataSource) {
         }
     }
 
-    @Transactional
-    fun update(usuario: Usuario): Usuario {
-        logger.info("Actualizando usuario con ID: ${usuario.id}")
-        val sql = """
-            UPDATE usuarios 
-            SET nombre = ?, 
-                apellido = ?, 
-                correo = ?, 
-                password = ?, 
-                token = ?, 
-                numero_incidentes = ?
-            WHERE id = ?
-        """
-
-        try {
-            val rowsAffected = jdbcTemplate.update(
-                sql,
-                usuario.nombre,
-                usuario.apellido,
-                usuario.correo,
-                usuario.password,
-                usuario.token,
-                usuario.numeroIncidentes,
-                usuario.id
-            )
-
-            if (rowsAffected == 0) {
-                throw IllegalStateException("No se encontró usuario con ID: ${usuario.id}")
-            }
-
-            return findById(usuario.id!!) ?: throw IllegalStateException("No se pudo recuperar el usuario actualizado")
-        } catch (e: Exception) {
-            logger.error("Error al actualizar usuario ${usuario.id}: ${e.message}", e)
-            throw IllegalStateException("Error al actualizar usuario: ${e.message}")
-        }
-    }
-
-    @Transactional
-    fun incrementarIncidentes(id: Long): Boolean {
-        logger.info("Incrementando número de incidentes para usuario ID: $id")
-        val sql = "UPDATE usuarios SET numero_incidentes = numero_incidentes + 1 WHERE id = ?"
+    fun existsById(id: Long): Boolean {
+        val sql = "SELECT COUNT(*) FROM usuarios WHERE id = ?"
         return try {
-            val rowsAffected = jdbcTemplate.update(sql, id)
-            rowsAffected > 0
+            val count = jdbcTemplate.queryForObject(sql, Int::class.java, id) ?: 0
+            count > 0
         } catch (e: Exception) {
-            logger.error("Error al incrementar incidentes para usuario $id: ${e.message}", e)
+            logger.error("Error al verificar existencia del usuario $id: ${e.message}", e)
             false
         }
     }

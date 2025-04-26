@@ -5,7 +5,6 @@ import com.bumper.api.user.repository.IncidenteRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
-import java.time.LocalDateTime
 
 @Service
 class IncidenteService(
@@ -18,8 +17,21 @@ class IncidenteService(
      */
     @Transactional
     fun crear(incidente: Incidente): Incidente {
-        logger.info("Creando nuevo incidente para usuario ID: ${incidente.usuario.id}")
-        return incidenteRepository.save(incidente)
+        logger.info("Creando nuevo incidente para usuario ID: ${incidente.usuarioId}")
+
+        // Validar el estado inicial
+        val estadoInicial = incidente.estado.uppercase()
+        if (!estadosValidos.contains(estadoInicial)) {
+            logger.error("Estado inicial inválido: $estadoInicial")
+            throw IllegalArgumentException("Estado inválido. Estados válidos: ${estadosValidos.joinToString()}")
+        }
+
+        return try {
+            incidenteRepository.save(incidente)
+        } catch (e: Exception) {
+            logger.error("Error al crear incidente: ${e.message}", e)
+            throw IllegalStateException("No se pudo crear el incidente: ${e.message}")
+        }
     }
 
     /**
@@ -27,7 +39,12 @@ class IncidenteService(
      */
     fun obtenerTodos(): List<Incidente> {
         logger.info("Obteniendo todos los incidentes")
-        return incidenteRepository.findAll()
+        return try {
+            incidenteRepository.findAll()
+        } catch (e: Exception) {
+            logger.error("Error al obtener todos los incidentes: ${e.message}", e)
+            emptyList()
+        }
     }
 
     /**
@@ -35,7 +52,12 @@ class IncidenteService(
      */
     fun obtenerPorUsuario(usuarioId: Long): List<Incidente> {
         logger.info("Obteniendo incidentes para usuario ID: $usuarioId")
-        return incidenteRepository.findByUsuarioId(usuarioId)
+        return try {
+            incidenteRepository.findByUsuarioId(usuarioId)
+        } catch (e: Exception) {
+            logger.error("Error al obtener incidentes del usuario $usuarioId: ${e.message}", e)
+            emptyList()
+        }
     }
 
     /**
@@ -44,7 +66,12 @@ class IncidenteService(
     @Transactional(readOnly = true)
     fun obtenerPorId(id: String): Incidente? {
         logger.info("Buscando incidente con ID: $id")
-        return incidenteRepository.findById(id)
+        return try {
+            incidenteRepository.findById(id)
+        } catch (e: Exception) {
+            logger.error("Error al buscar incidente $id: ${e.message}", e)
+            null
+        }
     }
 
     /**
@@ -53,12 +80,20 @@ class IncidenteService(
     @Transactional
     fun actualizarEstado(id: String, estado: String): Incidente? {
         logger.info("Actualizando estado de incidente $id a: $estado")
+
         // Validar que el estado sea válido
-        if (!estadosValidos.contains(estado.uppercase())) {
+        val nuevoEstado = estado.uppercase()
+        if (!estadosValidos.contains(nuevoEstado)) {
             logger.error("Estado inválido: $estado")
             throw IllegalArgumentException("Estado inválido. Estados válidos: ${estadosValidos.joinToString()}")
         }
-        return incidenteRepository.updateEstado(id, estado.uppercase())
+
+        return try {
+            incidenteRepository.updateEstado(id, nuevoEstado)
+        } catch (e: Exception) {
+            logger.error("Error al actualizar estado del incidente $id: ${e.message}", e)
+            null
+        }
     }
 
     /**
@@ -66,12 +101,20 @@ class IncidenteService(
      */
     fun obtenerPorEstado(estado: String): List<Incidente> {
         logger.info("Obteniendo incidentes con estado: $estado")
+
         // Validar que el estado sea válido
-        if (!estadosValidos.contains(estado.uppercase())) {
+        val estadoBusqueda = estado.uppercase()
+        if (!estadosValidos.contains(estadoBusqueda)) {
             logger.error("Estado inválido: $estado")
             return emptyList()
         }
-        return incidenteRepository.findByEstado(estado.uppercase())
+
+        return try {
+            incidenteRepository.findByEstado(estadoBusqueda)
+        } catch (e: Exception) {
+            logger.error("Error al obtener incidentes por estado $estado: ${e.message}", e)
+            emptyList()
+        }
     }
 
     /**
@@ -79,12 +122,19 @@ class IncidenteService(
      */
     fun buscarCercanos(latitud: Double, longitud: Double, radioKm: Double): List<Incidente> {
         logger.info("Buscando incidentes cercanos a ($latitud, $longitud) en radio de $radioKm km")
-        // Validar coordenadas
-        if (latitud < -90 || latitud > 90 || longitud < -180 || longitud > 180 || radioKm <= 0) {
+
+        // Validar coordenadas y radio
+        if (!coordenadasValidas(latitud, longitud, radioKm)) {
             logger.error("Coordenadas o radio inválidos: lat=$latitud, lon=$longitud, radio=$radioKm")
             return emptyList()
         }
-        return incidenteRepository.findNearby(latitud, longitud, radioKm)
+
+        return try {
+            incidenteRepository.findNearby(latitud, longitud, radioKm)
+        } catch (e: Exception) {
+            logger.error("Error al buscar incidentes cercanos: ${e.message}", e)
+            emptyList()
+        }
     }
 
     /**
@@ -92,10 +142,22 @@ class IncidenteService(
      */
     fun puedeModificar(incidenteId: String, usuarioId: Long): Boolean {
         val incidente = obtenerPorId(incidenteId) ?: return false
-        return incidente.usuario.id == usuarioId
+        return incidente.usuarioId == usuarioId
+    }
+
+    /**
+     * Valida coordenadas y radio para búsqueda de incidentes cercanos
+     */
+    private fun coordenadasValidas(latitud: Double, longitud: Double, radioKm: Double): Boolean {
+        return latitud in -90.0..90.0 &&
+                longitud in -180.0..180.0 &&
+                radioKm > 0
     }
 
     companion object {
         private val estadosValidos = setOf("PENDIENTE", "EN_PROCESO", "RESUELTO")
+
+        // Constantes para validación
+        const val RADIO_MAXIMO_KM = 50.0
     }
 }

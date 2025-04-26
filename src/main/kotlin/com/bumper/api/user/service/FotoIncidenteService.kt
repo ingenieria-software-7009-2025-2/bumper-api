@@ -14,13 +14,22 @@ class FotoIncidenteService(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
+    /**
+     * Agrega una nueva foto a un incidente
+     */
     @Transactional
-    fun agregarFoto(incidenteId: String, urlFoto: String, descripcion: String?): FotoIncidente {
-        logger.info("Intentando agregar foto para incidente: $incidenteId")
+    fun agregarFoto(incidenteId: String, urlFoto: String, descripcion: String? = null): FotoIncidente {
+        logger.info("Agregando foto para incidente: $incidenteId")
 
-        // Verificar que el incidente existe
-        incidenteRepository.findById(incidenteId)
-            ?: throw IllegalArgumentException("Incidente no encontrado: $incidenteId")
+        // Verificar si existe el incidente
+        if (!incidenteRepository.existsById(incidenteId)) {
+            throw IllegalArgumentException("El incidente no existe")
+        }
+
+        // Verificar límite de fotos
+        if (fotoIncidenteRepository.countFotosByIncidenteId(incidenteId) >= MAX_FOTOS_POR_INCIDENTE) {
+            throw IllegalStateException("Se ha alcanzado el límite máximo de fotos para este incidente")
+        }
 
         return try {
             val foto = FotoIncidente(
@@ -30,94 +39,64 @@ class FotoIncidenteService(
             )
             fotoIncidenteRepository.save(foto)
         } catch (e: Exception) {
-            logger.error("Error al guardar la foto: ${e.message}", e)
+            logger.error("Error al agregar foto: ${e.message}", e)
             throw IllegalStateException("Error al guardar la foto: ${e.message}")
         }
     }
 
     /**
-     * Obtiene todas las fotos de un incidente.
-     * @throws IllegalArgumentException si el incidente no existe
+     * Obtiene todas las fotos de un incidente
      */
     fun getFotosDeIncidente(incidenteId: String): List<FotoIncidente> {
         logger.info("Obteniendo fotos del incidente: $incidenteId")
-
-        // Verificar que el incidente existe
-        incidenteRepository.findById(incidenteId)
-            ?: throw IllegalArgumentException("Incidente no encontrado: $incidenteId")
-
         return fotoIncidenteRepository.findByIncidenteId(incidenteId)
     }
 
     /**
-     * Elimina una foto específica, verificando permisos.
-     * @throws IllegalArgumentException si la foto no existe o no pertenece al usuario
+     * Elimina una foto específica
      */
     @Transactional
-    fun eliminarFoto(id: Long, usuarioId: Long) {
-        logger.info("Intentando eliminar foto ID: $id")
+    fun eliminarFoto(fotoId: Long, usuarioId: Long) {
+        logger.info("Eliminando foto $fotoId (solicitado por usuario $usuarioId)")
 
-        if (!perteneceAUsuario(id, usuarioId)) {
+        // Verificar si la foto existe y pertenece al usuario
+        if (!fotoIncidenteRepository.belongsToUser(fotoId, usuarioId)) {
             throw IllegalArgumentException("No tienes permiso para eliminar esta foto")
         }
 
         try {
-            fotoIncidenteRepository.delete(id)
-            logger.info("Foto eliminada exitosamente")
+            if (!fotoIncidenteRepository.deleteById(fotoId)) {
+                throw IllegalStateException("No se pudo eliminar la foto")
+            }
         } catch (e: Exception) {
-            logger.error("Error al eliminar la foto: ${e.message}", e)
+            logger.error("Error al eliminar foto: ${e.message}", e)
             throw IllegalStateException("Error al eliminar la foto: ${e.message}")
         }
     }
 
     /**
-     * Elimina todas las fotos de un incidente, verificando permisos.
-     * @throws IllegalArgumentException si el incidente no existe o no pertenece al usuario
+     * Actualiza la descripción de una foto
      */
     @Transactional
-    fun eliminarFotosPorIncidente(incidenteId: String, usuarioId: Long) {
-        logger.info("Intentando eliminar todas las fotos del incidente: $incidenteId")
-        val incidente = incidenteRepository.findById(incidenteId)
-            ?: throw IllegalArgumentException("Incidente no encontrado: $incidenteId")
-        if (incidente.usuario.id != usuarioId) {
-            throw IllegalArgumentException("No tienes permiso para eliminar las fotos de este incidente")
-        }
-        val fotosEliminadas = fotoIncidenteRepository.deleteByIncidenteId(incidenteId)
-        logger.info("$fotosEliminadas fotos eliminadas del incidente $incidenteId")
-    }
+    fun actualizarDescripcion(fotoId: Long, descripcion: String, usuarioId: Long) {
+        logger.info("Actualizando descripción de foto $fotoId")
 
-    /**
-     * Actualiza la descripción de una foto, verificando permisos.
-     * @throws IllegalArgumentException si la foto no existe o no pertenece al usuario
-     */
-    @Transactional
-    fun actualizarDescripcion(id: Long, descripcion: String, usuarioId: Long) {
-        logger.info("Intentando actualizar descripción de foto ID: $id")
-
-        if (!perteneceAUsuario(id, usuarioId)) {
+        // Verificar si la foto existe y pertenece al usuario
+        if (!fotoIncidenteRepository.belongsToUser(fotoId, usuarioId)) {
             throw IllegalArgumentException("No tienes permiso para modificar esta foto")
         }
 
         try {
-            fotoIncidenteRepository.updateDescripcion(id, descripcion)
-            logger.info("Descripción actualizada exitosamente")
+            if (!fotoIncidenteRepository.updateDescripcion(fotoId, descripcion)) {
+                throw IllegalStateException("No se pudo actualizar la descripción")
+            }
         } catch (e: Exception) {
-            logger.error("Error al actualizar la descripción: ${e.message}", e)
+            logger.error("Error al actualizar descripción: ${e.message}", e)
             throw IllegalStateException("Error al actualizar la descripción: ${e.message}")
         }
     }
 
-    /**
-     * Verifica si una foto pertenece a un usuario específico.
-     */
-    fun perteneceAUsuario(fotoId: Long, usuarioId: Long): Boolean {
-        return fotoIncidenteRepository.belongsToUser(fotoId, usuarioId)
-    }
-
-    /**
-     * Cuenta el número de fotos que tiene un incidente.
-     */
-    fun contarFotosPorIncidente(incidenteId: String): Int {
-        return fotoIncidenteRepository.countFotosByIncidenteId(incidenteId)
+    companion object {
+        const val MAX_FOTOS_POR_INCIDENTE = 5
     }
 }
