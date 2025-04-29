@@ -18,25 +18,8 @@
     \end{enumerate}
 \end{itemize}
 
-\subsection*{CU2: Ingreso del Usuario}
-\textbf{Actores:} Ciudadano, Sistema\\
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item El usuario accede a la página de inicio de sesión. (RF1)
-    \item Ingresa su correo electrónico y contraseña.
-    \item El sistema verifica las credenciales.
-    \item El usuario es redirigido al mapa principal. (RF5)
-\end{enumerate}
-\textbf{Flujo Alternativo:}
-\begin{itemize}
-    \item \textit{Credenciales incorrectas:}
-    \begin{enumerate}
-        \item El sistema muestra un mensaje de error.
-        \item Ofrece un enlace para recuperar la contraseña por correo.
-    \end{enumerate}
-\end{itemize}
 
-\subsection*{CU3: Reportar Incidente Urbano}
+\subsection*{CU2: Reportar Incidente Urbano}
 \textbf{Actores:} Ciudadano, Sistema\\
 \textbf{Flujo Principal:}
 \begin{enumerate}
@@ -55,7 +38,7 @@
     \end{enumerate}
 \end{itemize}
 
-\subsection*{CU4: Modificar Estatus de Reporte}
+\subsection*{CU3: Modificar Estatus de Reporte}
 \textbf{Actores:} Ciudadano (creador del reporte), Sistema\\
 \textbf{Flujo Principal:}
 \begin{enumerate}
@@ -72,40 +55,8 @@
     \end{enumerate}
 \end{itemize}
 
-\subsection*{CU5: Explorar Incidentes en Mapa}
-\textbf{Actores:} Usuario (registrado o invitado), Sistema\\
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item El usuario accede al mapa principal y ve los marcadores de incidentes. (RF3)
-    \item Usa filtros en la barra lateral para mostrar incidentes por estatus o tipo. (RF4)
-    \item Hace clic en un marcador para ver detalles.
-    \item El sistema muestra una ventana con fotos, estatus y tipo de incidente. (RF5)
-\end{enumerate}
-\textbf{Flujo Alternativo:}
-\begin{itemize}
-    \item \textit{Filtros sin resultados:}
-    \begin{enumerate}
-        \item El sistema indica que no hay incidentes y sugiere ajustar los filtros.
-    \end{enumerate}
-\end{itemize}
 
-\subsection*{CU6: Cerrar Sesión}
-\textbf{Actores:} Usuario, Sistema\\
-\textbf{Flujo Principal:}
-\begin{enumerate}
-    \item El usuario hace clic en el botón de "Cerrar Sesión" desde cualquier página del sistema. (RF6)
-    \item El sistema cierra la sesión del usuario y lo redirige a la página de inicio de sesión. (RF1)
-\end{enumerate}
-\textbf{Flujo Alternativo:}
-\begin{itemize}
-    \item \textit{Error en el cierre de sesión:}
-    \begin{enumerate}
-        \item El sistema muestra un mensaje de error indicando que no se pudo cerrar la sesión.
-        \item El usuario puede intentar nuevamente o contactar soporte técnico.
-    \end{enumerate}
-\end{itemize}
-
-\subsection*{CU7: Ver Detalles de un Incidente}
+\subsection*{CU4: Ver Detalles de un Incidente}
 \textbf{Actores:} Usuario (registrado o invitado), Sistema\\
 \textbf{Flujo Principal:}
 \begin{enumerate}
@@ -128,7 +79,7 @@
     \end{enumerate}
 \end{itemize}
 
-\subsection*{CU8: Editar Perfil de Usuario}
+\subsection*{CU5: Editar Perfil de Usuario}
 \textbf{Actores:} Usuario, Sistema\\
 \textbf{Flujo Principal:}
 \begin{enumerate}
