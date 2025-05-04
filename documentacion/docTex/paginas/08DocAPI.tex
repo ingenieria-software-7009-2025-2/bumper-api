@@ -2,8 +2,7 @@
 
 % ================ USUARIOS ================
 
-\subsection*{\faUser\ Endpoints de Usuarios}
-
+% --- 1. Registrar Usuario ---
 \subsection*{\faServer\ 1. Registrar Usuario}
 \begin{tcolorbox}[endpoint]
     \textbf{POST} \texttt{/v1/users/create}\\
@@ -26,7 +25,8 @@
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
-    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 201}
+    \textbf{Status:} 201 Created\\
+    \textbf{Body:}
     \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "mensaje": "Usuario registrado exitosamente",
@@ -37,23 +37,17 @@
         "correo": "juan@example.com",
         "token": "inactivo",
         "numeroIncidentes": 0,
-        "fechaRegistro": "2025-04-26T10:30:00"
+        "fechaRegistro": "2025-05-04T12:00:00"
     }
 }
     \end{minted}
-    \textbf{Errores}
-    \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 400} - Correo electrónico inválido
-        \item \textcolor{errorColor}{HTTP 500} - Error interno del servidor
-    \end{itemize}
 \end{tcolorbox}
 
-\newpage
-
-\subsection*{\faServer\ 2. Iniciar Sesión}
+% --- 2. Login Usuario ---
+\subsection*{\faServer\ 2. Login Usuario}
 \begin{tcolorbox}[endpoint]
     \textbf{POST} \texttt{/v1/users/login}\\
-    Inicia sesión de un usuario en el sistema.
+    Inicia sesión de usuario.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
@@ -70,7 +64,8 @@
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
-    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
+    \textbf{Status:} 200 OK\\
+    \textbf{Body:}
     \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "mensaje": "Login exitoso",
@@ -81,23 +76,17 @@
         "correo": "juan@example.com",
         "token": "activo",
         "numeroIncidentes": 0,
-        "fechaRegistro": "2025-04-26T10:30:00"
+        "fechaRegistro": "2025-05-04T12:00:00"
     }
 }
     \end{minted}
-    \textbf{Errores}
-    \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 401} - Credenciales inválidas
-        \item \textcolor{errorColor}{HTTP 500} - Error en el servidor
-    \end{itemize}
 \end{tcolorbox}
 
-\newpage
-
-\subsection*{\faServer\ 3. Cerrar Sesión}
+% --- 3. Logout Usuario ---
+\subsection*{\faServer\ 3. Logout Usuario}
 \begin{tcolorbox}[endpoint]
     \textbf{POST} \texttt{/v1/users/logout}\\
-    Cierra la sesión de un usuario.
+    Cierra la sesión del usuario.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
@@ -113,34 +102,30 @@
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
-    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
+    \textbf{Status:} 200 OK\\
+    \textbf{Body:}
     \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "mensaje": "Sesión cerrada correctamente"
 }
     \end{minted}
-    \textbf{Errores}
-    \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado
-        \item \textcolor{errorColor}{HTTP 500} - Error al cerrar sesión
-    \end{itemize}
 \end{tcolorbox}
 
-\newpage
-
-\subsection*{\faServer\ 4. Obtener Usuario por Correo}
+% --- 4. Obtener Usuario por ID ---
+\subsection*{\faServer\ 4. Obtener Usuario por ID}
 \begin{tcolorbox}[endpoint]
-    \textbf{GET} \texttt{/v1/users/correo/\{correo\}}\\
-    Obtiene los datos de un usuario por su correo electrónico.
+    \textbf{GET} \texttt{/v1/users/\{id\}}\\
+    Obtiene los datos de un usuario por su ID.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
-    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/users/correo/juan@example.com}}\\
+    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/users/1}}\\
     \textbf{Método:} \textcolor{methodColor}{\texttt{GET}}
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
-    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
+    \textbf{Status:} 200 OK\\
+    \textbf{Body:}
     \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "mensaje": "Usuario encontrado",
@@ -151,27 +136,49 @@
         "correo": "juan@example.com",
         "token": "activo",
         "numeroIncidentes": 0,
-        "fechaRegistro": "2025-04-26T10:30:00"
+        "fechaRegistro": "2025-05-04T12:00:00"
     }
 }
     \end{minted}
-    \textbf{Errores}
-    \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado
-        \item \textcolor{errorColor}{HTTP 500} - Error al buscar usuario
-    \end{itemize}
 \end{tcolorbox}
 
-\newpage
+% --- 5. Actualizar datos básicos de usuario ---
+\subsection*{\faServer\ 5. Actualizar datos básicos de usuario}
+\begin{tcolorbox}[endpoint]
+    \textbf{PUT} \texttt{/v1/users/update-datos-basicos}\\
+    Actualiza nombre, apellido y/o contraseña del usuario.
+\end{tcolorbox}
 
-% ================ INCIDENTES ================
+\begin{tcolorbox}[request]
+    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/users/update-datos-basicos}}\\
+    \textbf{Método:} \textcolor{methodColor}{\texttt{PUT}}\\
+    \textbf{Headers:} \textcolor{headerColor}{\texttt{Content-Type: application/json}}\\
+    \textbf{Body:}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "id": 1,
+    "nombre": "Juan",
+    "apellido": "Pérez",
+    "password": "nuevoPassword123"
+}
+    \end{minted}
+\end{tcolorbox}
 
-\subsection*{\faExclamationTriangle\ Endpoints de Incidentes}
+\begin{tcolorbox}[response]
+    \textbf{Status:} 200 OK\\
+    \textbf{Body:}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "mensaje": "Datos actualizados correctamente"
+}
+    \end{minted}
+\end{tcolorbox}
 
-\subsection*{\faServer\ 5. Crear Incidente}
+% --- 6. Crear Incidente ---
+\subsection*{\faServer\ 6. Crear Incidente}
 \begin{tcolorbox}[endpoint]
     \textbf{POST} \texttt{/v1/incidentes/create}\\
-    Registra un nuevo incidente en el sistema.
+    Registra un nuevo incidente.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
@@ -183,44 +190,48 @@
 {
     "usuarioId": 1,
     "tipoIncidente": "BACHES",
-    "ubicacion": "Av. Principal 123",
+    "ubicacion": "Calle 123, Colonia Centro",
     "latitud": 19.4326,
     "longitud": -99.1332,
-    "tipoVialidad": "AVENIDA"
+    "tipoVialidad": "CALLE",
+    "fotos": [
+        "https://ejemplo.com/foto1.jpg",
+        "https://ejemplo.com/foto2.jpg"
+    ]
 }
     \end{minted}
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
-    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 201}
+    \textbf{Status:} 201 Created\\
+    \textbf{Body:}
     \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "mensaje": "Incidente creado exitosamente",
     "incidente": {
-        "id": "20250426103000_BAC_AVE",
+        "id": "20250504120000_BAC_CAL",
         "usuarioId": 1,
         "tipoIncidente": "BACHES",
-        "ubicacion": "Av. Principal 123",
+        "ubicacion": "Calle 123, Colonia Centro",
         "latitud": 19.4326,
         "longitud": -99.1332,
-        "tipoVialidad": "AVENIDA",
-        "estado": "PENDIENTE"
+        "horaIncidente": "2025-05-04T12:00:00",
+        "tipoVialidad": "CALLE",
+        "estado": "PENDIENTE",
+        "fotos": [
+            "https://ejemplo.com/foto1.jpg",
+            "https://ejemplo.com/foto2.jpg"
+        ]
     }
 }
     \end{minted}
-    \textbf{Errores}
-    \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado
-        \item \textcolor{errorColor}{HTTP 500} - Error al registrar el incidente
-    \end{itemize}
 \end{tcolorbox}
 
-\newpage
-
-\subsection*{\faServer\ 6. Obtener Todos los Incidentes}
+% --- 7. Obtener todos los incidentes ---
+\subsection*{\faServer\ 7. Obtener todos los incidentes}
 \begin{tcolorbox}[endpoint]
     \textbf{GET} \texttt{/v1/incidentes/all}\\
-    Obtiene todos los incidentes registrados en el sistema.
+    Obtiene todos los incidentes registrados.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
@@ -229,37 +240,38 @@
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
-    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
+    \textbf{Status:} 200 OK\\
+    \textbf{Body:}
     \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "mensaje": "Incidentes encontrados",
-    "total": 1,
+    "total": 2,
     "incidentes": [
         {
-            "id": "20250426103000_BAC_AVE",
+            "id": "20250504120000_BAC_CAL",
             "usuarioId": 1,
             "tipoIncidente": "BACHES",
-            "ubicacion": "Av. Principal 123",
+            "ubicacion": "Calle 123, Colonia Centro",
             "latitud": 19.4326,
             "longitud": -99.1332,
-            "tipoVialidad": "AVENIDA",
-            "estado": "PENDIENTE"
+            "horaIncidente": "2025-05-04T12:00:00",
+            "tipoVialidad": "CALLE",
+            "estado": "PENDIENTE",
+            "fotos": [
+                "https://ejemplo.com/foto1.jpg"
+            ]
         }
+        // ...otros incidentes
     ]
 }
     \end{minted}
-    \textbf{Errores}
-    \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 500} - Error al obtener los incidentes
-    \end{itemize}
 \end{tcolorbox}
 
-\newpage
-
-\subsection*{\faServer\ 7. Obtener Incidentes por Usuario}
+% --- 8. Obtener incidentes por usuario ---
+\subsection*{\faServer\ 8. Obtener incidentes por usuario}
 \begin{tcolorbox}[endpoint]
     \textbf{GET} \texttt{/v1/incidentes/usuario/\{usuarioId\}}\\
-    Obtiene todos los incidentes asociados a un usuario específico.
+    Obtiene todos los incidentes de un usuario específico.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
@@ -268,7 +280,8 @@
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
-    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
+    \textbf{Status:} 200 OK\\
+    \textbf{Body:}
     \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "mensaje": "Incidentes encontrados para el usuario",
@@ -279,31 +292,69 @@
     "total": 1,
     "incidentes": [
         {
-            "id": "20250426103000_BAC_AVE",
+            "id": "20250504120000_BAC_CAL",
+            "usuarioId": 1,
             "tipoIncidente": "BACHES",
-            "ubicacion": "Av. Principal 123",
-            "estado": "PENDIENTE"
+            "ubicacion": "Calle 123, Colonia Centro",
+            "latitud": 19.4326,
+            "longitud": -99.1332,
+            "horaIncidente": "2025-05-04T12:00:00",
+            "tipoVialidad": "CALLE",
+            "estado": "PENDIENTE",
+            "fotos": [
+                "https://ejemplo.com/foto1.jpg"
+            ]
         }
     ]
 }
     \end{minted}
-    \textbf{Errores}
-    \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 404} - Usuario no encontrado
-        \item \textcolor{errorColor}{HTTP 500} - Error al obtener los incidentes
-    \end{itemize}
 \end{tcolorbox}
 
-\newpage
-
-\subsection*{\faServer\ 8. Actualizar Estado de Incidente}
+% --- 9. Obtener incidente por ID ---
+\subsection*{\faServer\ 9. Obtener incidente por ID}
 \begin{tcolorbox}[endpoint]
-    \textbf{PUT} \texttt{/v1/incidentes/update-status/\{id\}?usuarioId=\{usuarioId\}}\\
-    Actualiza el estado de un incidente específico.
+    \textbf{GET} \texttt{/v1/incidentes/\{id\}}\\
+    Obtiene un incidente por su ID.
 \end{tcolorbox}
 
 \begin{tcolorbox}[request]
-    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/incidentes/update-status/20250426103000\_BAC\_AVE?usuarioId=1}}\\
+    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/incidentes/20250504120000\_BAC\_CAL}}\\
+    \textbf{Método:} \textcolor{methodColor}{\texttt{GET}}
+\end{tcolorbox}
+
+\begin{tcolorbox}[response]
+    \textbf{Status:} 200 OK\\
+    \textbf{Body:}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "mensaje": "Incidente encontrado",
+    "incidente": {
+        "id": "20250504120000_BAC_CAL",
+        "usuarioId": 1,
+        "tipoIncidente": "BACHES",
+        "ubicacion": "Calle 123, Colonia Centro",
+        "latitud": 19.4326,
+        "longitud": -99.1332,
+        "horaIncidente": "2025-05-04T12:00:00",
+        "tipoVialidad": "CALLE",
+        "estado": "PENDIENTE",
+        "fotos": [
+            "https://ejemplo.com/foto1.jpg"
+        ]
+    }
+}
+    \end{minted}
+\end{tcolorbox}
+
+% --- 10. Actualizar estado de incidente ---
+\subsection*{\faServer\ 10. Actualizar estado de incidente}
+\begin{tcolorbox}[endpoint]
+    \textbf{PUT} \texttt{/v1/incidentes/update-status/\{id\}}\\
+    Actualiza el estado de un incidente.
+\end{tcolorbox}
+
+\begin{tcolorbox}[request]
+    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/incidentes/update-status/20250504120000\_BAC\_CAL?usuarioId=1}}\\
     \textbf{Método:} \textcolor{methodColor}{\texttt{PUT}}\\
     \textbf{Headers:} \textcolor{headerColor}{\texttt{Content-Type: application/json}}\\
     \textbf{Body:}
@@ -315,28 +366,31 @@
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
-    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
+    \textbf{Status:} 200 OK\\
+    \textbf{Body:}
     \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "mensaje": "Estado actualizado correctamente",
     "incidente": {
-        "id": "20250426103000_BAC_AVE",
-        "estado": "RESUELTO"
+        "id": "20250504120000_BAC_CAL",
+        "usuarioId": 1,
+        "tipoIncidente": "BACHES",
+        "ubicacion": "Calle 123, Colonia Centro",
+        "latitud": 19.4326,
+        "longitud": -99.1332,
+        "horaIncidente": "2025-05-04T12:00:00",
+        "tipoVialidad": "CALLE",
+        "estado": "RESUELTO",
+        "fotos": [
+            "https://ejemplo.com/foto1.jpg"
+        ]
     }
 }
     \end{minted}
-    \textbf{Errores}
-    \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 403} - No tiene permiso para modificar este incidente
-        \item \textcolor{errorColor}{HTTP 404} - Incidente no encontrado
-        \item \textcolor{errorColor}{HTTP 500} - Error al actualizar el estado
-    \end{itemize}
 \end{tcolorbox}
 
-
-\newpage
-
-\subsection*{\faServer\ 9. Buscar Incidentes Cercanos}
+% --- 11. Buscar incidentes cercanos ---
+\subsection*{\faServer\ 11. Buscar incidentes cercanos}
 \begin{tcolorbox}[endpoint]
     \textbf{GET} \texttt{/v1/incidentes/cercanos}\\
     Busca incidentes cercanos a una ubicación geográfica.
@@ -344,17 +398,12 @@
 
 \begin{tcolorbox}[request]
     \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/incidentes/cercanos?latitud=19.4326\&longitud=-99.1332\&radioKm=5.0}}\\
-    \textbf{Método:} \textcolor{methodColor}{\texttt{GET}}\\
-    \textbf{Parámetros:}
-    \begin{itemize}
-        \item \texttt{latitud}: Latitud del punto central
-        \item \texttt{longitud}: Longitud del punto central
-        \item \texttt{radioKm}: Radio de búsqueda en kilómetros (default: 5.0)
-    \end{itemize}
+    \textbf{Método:} \textcolor{methodColor}{\texttt{GET}}
 \end{tcolorbox}
 
 \begin{tcolorbox}[response]
-    \textbf{Respuesta Exitosa} \faCheckCircle\ \textcolor{successColor}{HTTP 200}
+    \textbf{Status:} 200 OK\\
+    \textbf{Body:}
     \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
 {
     "mensaje": "Búsqueda completada",
@@ -366,17 +415,20 @@
     "total": 1,
     "incidentes": [
         {
-            "id": "20250426103000_BAC_AVE",
+            "id": "20250504120000_BAC_CAL",
+            "usuarioId": 1,
             "tipoIncidente": "BACHES",
-            "ubicacion": "Av. Principal 123",
-            "estado": "PENDIENTE",
-            "distancia": 0.5
+            "ubicacion": "Calle 123, Colonia Centro",
+            "latitud": 19.4326,
+            "longitud": -99.1332,
+            "horaIncidente": "2025-05-04T12:00:00",
+            "tipoVialidad": "CALLE",
+            "estado": "RESUELTO",
+            "fotos": [
+                "https://ejemplo.com/foto1.jpg"
+            ]
         }
     ]
 }
     \end{minted}
-    \textbf{Errores}
-    \begin{itemize}
-        \item \textcolor{errorColor}{HTTP 500} - Error al buscar incidentes cercanos
-    \end{itemize}
 \end{tcolorbox}
