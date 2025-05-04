@@ -51,4 +51,12 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
     fun cerrarSesion(correo: String): Boolean {
         return actualizarToken(correo, Usuario.TOKEN_INACTIVO)
     }
+
+    fun actualizarDatosBasicos(id: Long, nombre: String, apellido: String, password: String?): Boolean {
+        if (!usuarioRepository.existsById(id)) {
+            throw IllegalArgumentException("El usuario con ID $id no existe")
+        }
+        return usuarioRepository.updateDatosBasicos(id, nombre, apellido, password)
+    }
+
 }
