@@ -104,4 +104,25 @@ class UsuarioRepository(private val dataSource: DataSource) {
             false
         }
     }
+
+    @Transactional
+    fun updateDatosBasicos(id: Long, nombre: String, apellido: String, password: String?): Boolean {
+        logger.info("Actualizando nombre, apellido y (opcionalmente) contraseña para usuario ID: $id")
+        val sql: String
+        val params: Array<Any?>
+        if (!password.isNullOrBlank()) {
+            sql = "UPDATE usuarios SET nombre = ?, apellido = ?, password = ? WHERE id = ?"
+            params = arrayOf(nombre, apellido, password, id)
+        } else {
+            sql = "UPDATE usuarios SET nombre = ?, apellido = ? WHERE id = ?"
+            params = arrayOf(nombre, apellido, id)
+        }
+        return try {
+            val rowsAffected = jdbcTemplate.update(sql, *params)
+            rowsAffected > 0
+        } catch (e: Exception) {
+            logger.error("Error al actualizar datos básicos para usuario $id: ${e.message}", e)
+            false
+        }
+    }
 }
