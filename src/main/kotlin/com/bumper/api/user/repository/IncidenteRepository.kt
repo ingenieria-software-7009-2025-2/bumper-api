@@ -1,7 +1,6 @@
 package com.bumper.api.user.repository
 
 import com.bumper.api.user.domain.Incidente
-import com.bumper.api.user.domain.FotoIncidente
 import org.slf4j.LoggerFactory
 import org.springframework.jdbc.core.JdbcTemplate
 import org.springframework.jdbc.core.RowMapper
@@ -11,17 +10,24 @@ import javax.sql.DataSource
 import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
+import org.springframework.jdbc.core.ConnectionCallback
 
 @Repository
 class IncidenteRepository(
     private val dataSource: DataSource,
     private val usuarioRepository: UsuarioRepository,
-    private val fotoIncidenteRepository: FotoIncidenteRepository
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val jdbcTemplate = JdbcTemplate(dataSource)
 
     private val incidenteRowMapper = RowMapper { rs, _ ->
+        val fotosArray = rs.getArray("fotos")
+        val fotosList = if (fotosArray != null) {
+            (fotosArray.array as Array<Any>).map { it.toString() }
+        } else {
+            emptyList()
+        }
+
         Incidente(
             id = rs.getString("id"),
             usuarioId = rs.getLong("usuario_id"),
@@ -31,7 +37,8 @@ class IncidenteRepository(
             longitud = rs.getDouble("longitud"),
             horaIncidente = rs.getTimestamp("hora_incidente").toLocalDateTime(),
             tipoVialidad = rs.getString("tipo_vialidad"),
-            estado = rs.getString("estado")
+            estado = rs.getString("estado"),
+            fotos = fotosList
         )
     }
 
@@ -48,12 +55,17 @@ class IncidenteRepository(
             logger.info("Guardando incidente con ID generado: $idGenerado")
 
             val sql = """
-                INSERT INTO incidentes (
-                    id, usuario_id, tipo_incidente, ubicacion, 
-                    latitud, longitud, tipo_vialidad, 
-                    estado, hora_incidente
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
-            """
+            INSERT INTO incidentes (
+                id, usuario_id, tipo_incidente, ubicacion, 
+                latitud, longitud, tipo_vialidad, 
+                estado, hora_incidente, fotos
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+        """
+
+            // Crear array SQL para las fotos
+            val fotosArray = jdbcTemplate.execute(ConnectionCallback { connection ->
+                connection.createArrayOf("text", incidente.fotos.toTypedArray())
+            })
 
             jdbcTemplate.update(sql,
                 idGenerado,
@@ -64,7 +76,8 @@ class IncidenteRepository(
                 incidente.longitud,
                 incidente.tipoVialidad,
                 incidente.estado,
-                Timestamp.valueOf(incidente.horaIncidente)
+                Timestamp.valueOf(incidente.horaIncidente),
+                fotosArray
             )
 
             return findById(idGenerado)
@@ -83,12 +96,7 @@ class IncidenteRepository(
         """
 
         return try {
-            val incidentes = jdbcTemplate.query(sql, incidenteRowMapper)
-            incidentes.map { incidente ->
-                incidente.id?.let { id ->
-                    incidente.copyWithFotos(getFotosIncidente(id))
-                } ?: incidente
-            }
+            jdbcTemplate.query(sql, incidenteRowMapper)
         } catch (e: Exception) {
             logger.error("Error al obtener todos los incidentes: ${e.message}", e)
             emptyList()
@@ -103,12 +111,7 @@ class IncidenteRepository(
         """
 
         return try {
-            val incidentes = jdbcTemplate.query(sql, incidenteRowMapper, usuarioId)
-            incidentes.map { incidente ->
-                incidente.id?.let { id ->
-                    incidente.copyWithFotos(getFotosIncidente(id))
-                } ?: incidente
-            }
+            jdbcTemplate.query(sql, incidenteRowMapper, usuarioId)
         } catch (e: Exception) {
             logger.error("Error al buscar incidentes por usuario ID $usuarioId: ${e.message}", e)
             emptyList()
@@ -119,11 +122,7 @@ class IncidenteRepository(
     fun findById(id: String): Incidente? {
         val sql = "SELECT * FROM incidentes WHERE id = ?"
         return try {
-            jdbcTemplate.query(sql, incidenteRowMapper, id)
-                .firstOrNull()
-                ?.let { incidente ->
-                    incidente.copyWithFotos(getFotosIncidente(id))
-                }
+            jdbcTemplate.query(sql, incidenteRowMapper, id).firstOrNull()
         } catch (e: Exception) {
             logger.error("Error al buscar incidente por ID $id: ${e.message}", e)
             null
@@ -137,12 +136,7 @@ class IncidenteRepository(
             ORDER BY hora_incidente DESC
         """
         return try {
-            val incidentes = jdbcTemplate.query(sql, incidenteRowMapper, estado)
-            incidentes.map { incidente ->
-                incidente.id?.let { id ->
-                    incidente.copyWithFotos(getFotosIncidente(id))
-                } ?: incidente
-            }
+            jdbcTemplate.query(sql, incidenteRowMapper, estado)
         } catch (e: Exception) {
             logger.error("Error al buscar incidentes por estado $estado: ${e.message}", e)
             emptyList()
@@ -163,16 +157,11 @@ class IncidenteRepository(
         """
 
         return try {
-            val incidentes = jdbcTemplate.query(
+            jdbcTemplate.query(
                 sql,
                 incidenteRowMapper,
                 latitud, longitud, latitud, radioKm
             )
-            incidentes.map { incidente ->
-                incidente.id?.let { id ->
-                    incidente.copyWithFotos(getFotosIncidente(id))
-                } ?: incidente
-            }
         } catch (e: Exception) {
             logger.error("Error al buscar incidentes cercanos: ${e.message}", e)
             emptyList()
@@ -194,10 +183,6 @@ class IncidenteRepository(
             logger.error("Error al actualizar estado del incidente $id: ${e.message}", e)
             null
         }
-    }
-
-    private fun getFotosIncidente(incidenteId: String): List<FotoIncidente> {
-        return fotoIncidenteRepository.findByIncidenteId(incidenteId)
     }
 
     fun existsById(id: String): Boolean {

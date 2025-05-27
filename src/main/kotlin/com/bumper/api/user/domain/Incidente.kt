@@ -14,9 +14,5 @@ data class Incidente(
     val horaIncidente: LocalDateTime = LocalDateTime.now(),
     val tipoVialidad: String,
     val estado: String = "PENDIENTE",
-    val fotos: List<FotoIncidente> = emptyList()
-) {
-    fun copyWithFotos(newFotos: List<FotoIncidente>): Incidente {
-        return this.copy(fotos = newFotos)
-    }
-}
+    val fotos: List<String> = emptyList()
+)
