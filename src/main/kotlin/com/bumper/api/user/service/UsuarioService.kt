@@ -18,10 +18,6 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
         return usuarioRepository.findByCorreo(correo)
     }
 
-    fun buscarPorId(id: Long): Usuario? {
-        return usuarioRepository.findById(id)
-    }
-
     fun actualizarUsuario(usuario: Usuario): Usuario {
         logger.info("Actualizando usuario: ${usuario.id}")
         return usuarioRepository.save(usuario)
@@ -50,5 +46,13 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
 
     fun cerrarSesion(correo: String): Boolean {
         return actualizarToken(correo, Usuario.TOKEN_INACTIVO)
+    }
+
+    fun buscarPorId(id: Long): Usuario? {
+        return usuarioRepository.findById(id)
+    }
+
+    fun buscarPorIds(ids: List<Long>): List<Usuario> {
+        return usuarioRepository.findByIds(ids)
     }
 }

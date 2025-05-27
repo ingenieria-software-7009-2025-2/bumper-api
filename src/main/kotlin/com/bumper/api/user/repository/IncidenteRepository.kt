@@ -89,6 +89,16 @@ class IncidenteRepository(
         }
     }
 
+    fun findById(id: String): Incidente? {
+        val sql = "SELECT * FROM incidentes WHERE id = ?"
+        return try {
+            jdbcTemplate.query(sql, incidenteRowMapper, id).firstOrNull()
+        } catch (e: Exception) {
+            logger.error("Error al buscar incidente por ID $id: ${e.message}", e)
+            null
+        }
+    }
+
     fun findAll(): List<Incidente> {
         val sql = """
             SELECT * FROM incidentes
@@ -118,16 +128,6 @@ class IncidenteRepository(
         }
     }
 
-    @Transactional(readOnly = true)
-    fun findById(id: String): Incidente? {
-        val sql = "SELECT * FROM incidentes WHERE id = ?"
-        return try {
-            jdbcTemplate.query(sql, incidenteRowMapper, id).firstOrNull()
-        } catch (e: Exception) {
-            logger.error("Error al buscar incidente por ID $id: ${e.message}", e)
-            null
-        }
-    }
 
     fun findByEstado(estado: String): List<Incidente> {
         val sql = """

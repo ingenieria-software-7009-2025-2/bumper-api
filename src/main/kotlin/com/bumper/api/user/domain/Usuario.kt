@@ -1,4 +1,3 @@
-// Usuario.kt
 package com.bumper.api.user.domain
 
 import java.time.LocalDateTime

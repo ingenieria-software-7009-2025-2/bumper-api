@@ -38,15 +38,16 @@ class IncidenteService(
     /**
      * Obtiene todos los incidentes
      */
-
     fun obtenerTodos(): List<Map<String, Any?>> {
         logger.info("Obteniendo todos los incidentes")
         return try {
             val incidentes = incidenteRepository.findAll()
+            val usuarioIds = incidentes.map { it.usuarioId }.distinct()
+            val usuarios = usuarioService.buscarPorIds(usuarioIds)
+            val usuarioMap = usuarios.associateBy { it.id }
 
-            // Convertir cada incidente a un mapa y añadir la información del usuario
             incidentes.map { incidente ->
-                val usuario = usuarioService.buscarPorId(incidente.usuarioId)
+                val usuario = usuarioMap[incidente.usuarioId]
                 mapOf(
                     "id" to incidente.id,
                     "usuarioId" to incidente.usuarioId,
@@ -58,13 +59,13 @@ class IncidenteService(
                     "tipoVialidad" to incidente.tipoVialidad,
                     "estado" to incidente.estado,
                     "fotos" to incidente.fotos,
-                    "usuario" to if (usuario != null) {
+                    "usuario" to usuario?.let {
                         mapOf(
-                            "id" to usuario.id,
-                            "nombre" to usuario.nombre,
-                            "apellido" to usuario.apellido
+                            "id" to it.id,
+                            "nombre" to it.nombre,
+                            "apellido" to it.apellido
                         )
-                    } else null
+                    }
                 )
             }
         } catch (e: Exception) {
@@ -182,8 +183,5 @@ class IncidenteService(
 
     companion object {
         private val estadosValidos = setOf("PENDIENTE", "EN_PROCESO", "RESUELTO")
-
-        // Constantes para validación
-        const val RADIO_MAXIMO_KM = 50.0
     }
 }
