@@ -8,7 +8,8 @@ import org.springframework.transaction.annotation.Transactional
 
 @Service
 class IncidenteService(
-    private val incidenteRepository: IncidenteRepository
+    private val incidenteRepository: IncidenteRepository,
+    private val usuarioService: UsuarioService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -37,10 +38,35 @@ class IncidenteService(
     /**
      * Obtiene todos los incidentes
      */
-    fun obtenerTodos(): List<Incidente> {
+
+    fun obtenerTodos(): List<Map<String, Any?>> {
         logger.info("Obteniendo todos los incidentes")
         return try {
-            incidenteRepository.findAll()
+            val incidentes = incidenteRepository.findAll()
+
+            // Convertir cada incidente a un mapa y añadir la información del usuario
+            incidentes.map { incidente ->
+                val usuario = usuarioService.buscarPorId(incidente.usuarioId)
+                mapOf(
+                    "id" to incidente.id,
+                    "usuarioId" to incidente.usuarioId,
+                    "tipoIncidente" to incidente.tipoIncidente,
+                    "ubicacion" to incidente.ubicacion,
+                    "latitud" to incidente.latitud,
+                    "longitud" to incidente.longitud,
+                    "horaIncidente" to incidente.horaIncidente,
+                    "tipoVialidad" to incidente.tipoVialidad,
+                    "estado" to incidente.estado,
+                    "fotos" to incidente.fotos,
+                    "usuario" to if (usuario != null) {
+                        mapOf(
+                            "id" to usuario.id,
+                            "nombre" to usuario.nombre,
+                            "apellido" to usuario.apellido
+                        )
+                    } else null
+                )
+            }
         } catch (e: Exception) {
             logger.error("Error al obtener todos los incidentes: ${e.message}", e)
             emptyList()

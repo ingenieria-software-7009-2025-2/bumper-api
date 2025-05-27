@@ -107,6 +107,28 @@ class IncidenteController(
                     .body(mapOf("mensaje" to "Usuario no encontrado"))
 
             val incidentes = incidenteService.obtenerPorUsuario(usuarioId)
+
+            // Enriquecer cada incidente con la información del usuario
+            val incidentesConUsuario = incidentes.map { incidente ->
+                mapOf(
+                    "id" to incidente.id,
+                    "usuarioId" to incidente.usuarioId,
+                    "tipoIncidente" to incidente.tipoIncidente,
+                    "ubicacion" to incidente.ubicacion,
+                    "latitud" to incidente.latitud,
+                    "longitud" to incidente.longitud,
+                    "horaIncidente" to incidente.horaIncidente,
+                    "tipoVialidad" to incidente.tipoVialidad,
+                    "estado" to incidente.estado,
+                    "fotos" to incidente.fotos,
+                    "usuario" to mapOf(
+                        "id" to usuario.id,
+                        "nombre" to usuario.nombre,
+                        "apellido" to usuario.apellido
+                    )
+                )
+            }
+
             ResponseEntity.ok(
                 mapOf(
                     "mensaje" to "Incidentes encontrados para el usuario",
@@ -115,7 +137,7 @@ class IncidenteController(
                         "nombre" to "${usuario.nombre} ${usuario.apellido}"
                     ),
                     "total" to incidentes.size,
-                    "incidentes" to incidentes
+                    "incidentes" to incidentesConUsuario
                 )
             )
         } catch (e: Exception) {
