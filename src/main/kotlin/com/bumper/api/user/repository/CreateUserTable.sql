@@ -11,7 +11,6 @@ CREATE TABLE usuarios (
 
 CREATE INDEX IF NOT EXISTS idx_usuarios_correo ON usuarios(correo);
 CREATE INDEX idx_usuarios_token ON usuarios(token);
-CREATE INDEX idx_usuarios_token_expiracion ON usuarios(token_expiracion);
 
 
 -- Tabla de Incidentes (ID generado por el backend)

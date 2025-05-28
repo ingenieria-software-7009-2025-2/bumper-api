@@ -5,10 +5,12 @@ import com.bumper.api.user.repository.IncidenteRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.annotation.Propagation
 
 @Service
 class IncidenteService(
-    private val incidenteRepository: IncidenteRepository
+    private val incidenteRepository: IncidenteRepository,
+    private val usuarioService: UsuarioService
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
@@ -37,10 +39,36 @@ class IncidenteService(
     /**
      * Obtiene todos los incidentes
      */
-    fun obtenerTodos(): List<Incidente> {
+    fun obtenerTodos(): List<Map<String, Any?>> {
         logger.info("Obteniendo todos los incidentes")
         return try {
-            incidenteRepository.findAll()
+            val incidentes = incidenteRepository.findAll()
+            val usuarioIds = incidentes.map { it.usuarioId }.distinct()
+            val usuarios = usuarioService.buscarPorIds(usuarioIds)
+            val usuarioMap = usuarios.associateBy { it.id }
+
+            incidentes.map { incidente ->
+                val usuario = usuarioMap[incidente.usuarioId]
+                mapOf(
+                    "id" to incidente.id,
+                    "usuarioId" to incidente.usuarioId,
+                    "tipoIncidente" to incidente.tipoIncidente,
+                    "ubicacion" to incidente.ubicacion,
+                    "latitud" to incidente.latitud,
+                    "longitud" to incidente.longitud,
+                    "horaIncidente" to incidente.horaIncidente,
+                    "tipoVialidad" to incidente.tipoVialidad,
+                    "estado" to incidente.estado,
+                    "fotos" to incidente.fotos,
+                    "usuario" to usuario?.let {
+                        mapOf(
+                            "id" to it.id,
+                            "nombre" to it.nombre,
+                            "apellido" to it.apellido
+                        )
+                    }
+                )
+            }
         } catch (e: Exception) {
             logger.error("Error al obtener todos los incidentes: ${e.message}", e)
             emptyList()
@@ -144,6 +172,29 @@ class IncidenteService(
         val incidente = obtenerPorId(incidenteId) ?: return false
         return incidente.usuarioId == usuarioId
     }
+    /**
+     * Elimina un incidente por su ID
+     *
+     * @param id ID del incidente a eliminar
+     * @return true si se eliminó correctamente, false en caso contrario
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    fun eliminar(id: String): Boolean {
+        logger.info("Eliminando incidente con ID: $id")
+        return try {
+            // Verificar si el incidente existe antes de intentar eliminarlo
+            val incidente = obtenerPorId(id)
+            if (incidente == null) {
+                logger.warn("No se encontró el incidente con ID $id para eliminar")
+                return false
+            }
+
+            incidenteRepository.eliminarIncidente(id)
+        } catch (e: Exception) {
+            logger.error("Error al eliminar incidente $id: ${e.message}", e)
+            false
+        }
+    }
 
     /**
      * Valida coordenadas y radio para búsqueda de incidentes cercanos
@@ -156,8 +207,5 @@ class IncidenteService(
 
     companion object {
         private val estadosValidos = setOf("PENDIENTE", "EN_PROCESO", "RESUELTO")
-
-        // Constantes para validación
-        const val RADIO_MAXIMO_KM = 50.0
     }
 }

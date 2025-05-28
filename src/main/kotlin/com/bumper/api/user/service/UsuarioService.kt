@@ -18,10 +18,6 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
         return usuarioRepository.findByCorreo(correo)
     }
 
-    fun buscarPorId(id: Long): Usuario? {
-        return usuarioRepository.findById(id)
-    }
-
     fun actualizarUsuario(usuario: Usuario): Usuario {
         logger.info("Actualizando usuario: ${usuario.id}")
         return usuarioRepository.save(usuario)
@@ -52,11 +48,11 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
         return actualizarToken(correo, Usuario.TOKEN_INACTIVO)
     }
 
-    fun actualizarDatosBasicos(id: Long, nombre: String, apellido: String, password: String?): Boolean {
-        if (!usuarioRepository.existsById(id)) {
-            throw IllegalArgumentException("El usuario con ID $id no existe")
-        }
-        return usuarioRepository.updateDatosBasicos(id, nombre, apellido, password)
+    fun buscarPorId(id: Long): Usuario? {
+        return usuarioRepository.findById(id)
     }
 
+    fun buscarPorIds(ids: List<Long>): List<Usuario> {
+        return usuarioRepository.findByIds(ids)
+    }
 }

@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository
 import org.springframework.transaction.annotation.Transactional
 import java.sql.Timestamp
 import javax.sql.DataSource
+import java.time.LocalDateTime
+
 
 @Repository
 class UsuarioRepository(private val dataSource: DataSource) {
@@ -71,13 +73,47 @@ class UsuarioRepository(private val dataSource: DataSource) {
     }
 
     fun findById(id: Long): Usuario? {
-        logger.info("Buscando usuario por ID: $id")
         val sql = "SELECT * FROM usuarios WHERE id = ?"
         return try {
-            jdbcTemplate.query(sql, usuarioRowMapper, id).firstOrNull()
+            jdbcTemplate.query(sql, { rs, _ ->
+                Usuario(
+                    id = rs.getLong("id"),
+                    nombre = rs.getString("nombre"),
+                    apellido = rs.getString("apellido"),
+                    correo = rs.getString("correo"),
+                    password = rs.getString("password"),
+                    token = rs.getString("token") ?: Usuario.TOKEN_INACTIVO,
+                    numeroIncidentes = rs.getInt("numero_incidentes"),
+                    fechaRegistro = rs.getTimestamp("fecha_registro")?.toLocalDateTime() ?: LocalDateTime.now()
+                )
+            }, id).firstOrNull()
         } catch (e: Exception) {
             logger.error("Error al buscar usuario por ID $id: ${e.message}", e)
             null
+        }
+    }
+
+    fun findByIds(ids: List<Long>): List<Usuario> {
+        if (ids.isEmpty()) return emptyList()
+        val placeholders = ids.joinToString(",") { "?" }
+        val sql = "SELECT * FROM usuarios WHERE id IN ($placeholders)"
+        return try {
+            val args = ids.toTypedArray()
+            jdbcTemplate.query(sql, { rs, _ ->
+                Usuario(
+                    id = rs.getLong("id"),
+                    nombre = rs.getString("nombre"),
+                    apellido = rs.getString("apellido"),
+                    correo = rs.getString("correo"),
+                    password = rs.getString("password"),
+                    token = rs.getString("token") ?: Usuario.TOKEN_INACTIVO,
+                    numeroIncidentes = rs.getInt("numero_incidentes"),
+                    fechaRegistro = rs.getTimestamp("fecha_registro")?.toLocalDateTime() ?: LocalDateTime.now()
+                )
+            }, *args)
+        } catch (e: Exception) {
+            logger.error("Error al buscar usuarios por IDs $ids: ${e.message}", e)
+            emptyList()
         }
     }
 

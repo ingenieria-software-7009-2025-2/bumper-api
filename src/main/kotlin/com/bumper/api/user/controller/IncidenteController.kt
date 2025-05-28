@@ -107,6 +107,28 @@ class IncidenteController(
                     .body(mapOf("mensaje" to "Usuario no encontrado"))
 
             val incidentes = incidenteService.obtenerPorUsuario(usuarioId)
+
+            // Enriquecer cada incidente con la información del usuario
+            val incidentesConUsuario = incidentes.map { incidente ->
+                mapOf(
+                    "id" to incidente.id,
+                    "usuarioId" to incidente.usuarioId,
+                    "tipoIncidente" to incidente.tipoIncidente,
+                    "ubicacion" to incidente.ubicacion,
+                    "latitud" to incidente.latitud,
+                    "longitud" to incidente.longitud,
+                    "horaIncidente" to incidente.horaIncidente,
+                    "tipoVialidad" to incidente.tipoVialidad,
+                    "estado" to incidente.estado,
+                    "fotos" to incidente.fotos,
+                    "usuario" to mapOf(
+                        "id" to usuario.id,
+                        "nombre" to usuario.nombre,
+                        "apellido" to usuario.apellido
+                    )
+                )
+            }
+
             ResponseEntity.ok(
                 mapOf(
                     "mensaje" to "Incidentes encontrados para el usuario",
@@ -115,7 +137,7 @@ class IncidenteController(
                         "nombre" to "${usuario.nombre} ${usuario.apellido}"
                     ),
                     "total" to incidentes.size,
-                    "incidentes" to incidentes
+                    "incidentes" to incidentesConUsuario
                 )
             )
         } catch (e: Exception) {
@@ -222,6 +244,55 @@ class IncidenteController(
             ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
                 .body(mapOf("mensaje" to "Error al buscar incidentes cercanos"))
+        }
+    }
+
+    /**
+     * Endpoint para eliminar un incidente.
+     *
+     * Permite a un usuario eliminar un incidente que haya creado.
+     */
+    @DeleteMapping("/{id}")
+    fun eliminarIncidente(
+        @PathVariable id: String,
+        @RequestParam usuarioId: Long
+    ): ResponseEntity<Any> {
+        logger.info("Eliminando incidente con ID: $id por usuario: $usuarioId")
+
+        return try {
+            // Verificar si el incidente existe
+            val incidente = incidenteService.obtenerPorId(id)
+            if (incidente == null) {
+                return ResponseEntity
+                    .status(HttpStatus.NOT_FOUND)
+                    .body(mapOf("mensaje" to "Incidente no encontrado"))
+            }
+
+            // Verificar si el usuario tiene permiso para eliminar este incidente
+            if (!incidenteService.puedeModificar(id, usuarioId)) {
+                return ResponseEntity
+                    .status(HttpStatus.FORBIDDEN)
+                    .body(mapOf("mensaje" to "No tienes permiso para eliminar este incidente"))
+            }
+
+            val eliminado = incidenteService.eliminar(id)
+            if (eliminado) {
+                ResponseEntity.ok(
+                    mapOf("mensaje" to "Incidente eliminado correctamente")
+                )
+            } else {
+                ResponseEntity
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body(mapOf("mensaje" to "No se pudo eliminar el incidente"))
+            }
+        } catch (e: Exception) {
+            logger.error("Error al eliminar incidente $id: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf(
+                    "mensaje" to "Error al eliminar el incidente",
+                    "error" to e.message
+                ))
         }
     }
 }

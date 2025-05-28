@@ -11,11 +11,13 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import org.springframework.jdbc.core.ConnectionCallback
+import org.springframework.transaction.annotation.Propagation
+import org.springframework.dao.EmptyResultDataAccessException
 
 @Repository
 class IncidenteRepository(
     private val dataSource: DataSource,
-    private val usuarioRepository: UsuarioRepository
+    private val usuarioRepository: UsuarioRepository,
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
     private val jdbcTemplate = JdbcTemplate(dataSource)
@@ -55,14 +57,14 @@ class IncidenteRepository(
             logger.info("Guardando incidente con ID generado: $idGenerado")
 
             val sql = """
-                INSERT INTO incidentes (
-                    id, usuario_id, tipo_incidente, ubicacion, 
-                    latitud, longitud, tipo_vialidad, 
-                    estado, hora_incidente, fotos
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+            INSERT INTO incidentes (
+                id, usuario_id, tipo_incidente, ubicacion, 
+                latitud, longitud, tipo_vialidad, 
+                estado, hora_incidente, fotos
+            ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
             """
 
-            // Crear array SQL para las fotos de manera explícita
+            // Crear array SQL para las fotos
             val fotosArray = jdbcTemplate.execute(ConnectionCallback { connection ->
                 connection.createArrayOf("text", incidente.fotos.toTypedArray())
             })
@@ -89,10 +91,24 @@ class IncidenteRepository(
         }
     }
 
+    fun findById(id: String): Incidente? {
+        return try {
+            val jdbcTemplate = JdbcTemplate(dataSource)
+            val sql = "SELECT * FROM incidentes WHERE id = ?"
+            jdbcTemplate.queryForObject(sql, incidenteRowMapper, id)
+        } catch (e: EmptyResultDataAccessException) {
+            logger.warn("No se encontró el incidente con ID $id")
+            null
+        } catch (e: Exception) {
+            logger.error("Error al buscar incidente con ID $id: ${e.message}", e)
+            null
+        }
+    }
+
     fun findAll(): List<Incidente> {
         val sql = """
-            SELECT * FROM incidentes
-            ORDER BY hora_incidente DESC
+        SELECT * FROM incidentes
+        ORDER BY hora_incidente DESC
         """
 
         return try {
@@ -105,9 +121,9 @@ class IncidenteRepository(
 
     fun findByUsuarioId(usuarioId: Long): List<Incidente> {
         val sql = """
-            SELECT * FROM incidentes
-            WHERE usuario_id = ?
-            ORDER BY hora_incidente DESC
+        SELECT * FROM incidentes
+        WHERE usuario_id = ?
+        ORDER BY hora_incidente DESC
         """
 
         return try {
@@ -118,22 +134,11 @@ class IncidenteRepository(
         }
     }
 
-    @Transactional(readOnly = true)
-    fun findById(id: String): Incidente? {
-        val sql = "SELECT * FROM incidentes WHERE id = ?"
-        return try {
-            jdbcTemplate.query(sql, incidenteRowMapper, id).firstOrNull()
-        } catch (e: Exception) {
-            logger.error("Error al buscar incidente por ID $id: ${e.message}", e)
-            null
-        }
-    }
-
     fun findByEstado(estado: String): List<Incidente> {
         val sql = """
-            SELECT * FROM incidentes
-            WHERE estado = ? 
-            ORDER BY hora_incidente DESC
+        SELECT * FROM incidentes
+        WHERE estado = ? 
+        ORDER BY hora_incidente DESC
         """
         return try {
             jdbcTemplate.query(sql, incidenteRowMapper, estado)
@@ -145,15 +150,15 @@ class IncidenteRepository(
 
     fun findNearby(latitud: Double, longitud: Double, radioKm: Double): List<Incidente> {
         val sql = """
-            SELECT *, 
-            (6371 * acos(
-                cos(radians(?)) * cos(radians(latitud)) *
-                cos(radians(longitud) - radians(?)) +
-                sin(radians(?)) * sin(radians(latitud))
-            )) as distancia
-            FROM incidentes
-            HAVING distancia <= ?
-            ORDER BY distancia, hora_incidente DESC
+        SELECT *, 
+        (6371 * acos(
+            cos(radians(?)) * cos(radians(latitud)) *
+            cos(radians(longitud) - radians(?)) +
+            sin(radians(?)) * sin(radians(latitud))
+        )) as distancia
+        FROM incidentes
+        HAVING distancia <= ?
+        ORDER BY distancia, hora_incidente DESC
         """
 
         return try {
@@ -168,10 +173,10 @@ class IncidenteRepository(
         }
     }
 
-    @Transactional
     fun updateEstado(id: String, estado: String): Incidente? {
         val sql = "UPDATE incidentes SET estado = ? WHERE id = ?"
         return try {
+            val jdbcTemplate = JdbcTemplate(dataSource)
             val rowsAffected = jdbcTemplate.update(sql, estado, id)
             if (rowsAffected > 0) {
                 findById(id)
@@ -182,6 +187,23 @@ class IncidenteRepository(
         } catch (e: Exception) {
             logger.error("Error al actualizar estado del incidente $id: ${e.message}", e)
             null
+        }
+    }
+
+    /**
+     * Elimina un incidente por su ID
+     *
+     * Método mejorado para manejar errores de SQL y proporcionar mejor logging
+     */
+    fun eliminarIncidente(id: String): Boolean {
+        val sql = "DELETE FROM incidentes WHERE id = ?"
+        return try {
+            val jdbcTemplate = JdbcTemplate(dataSource)
+            val rowsAffected = jdbcTemplate.update(sql, id)
+            rowsAffected > 0
+        } catch (e: Exception) {
+            logger.error("Error al eliminar incidente con ID $id: ${e.message}", e)
+            false
         }
     }
 
