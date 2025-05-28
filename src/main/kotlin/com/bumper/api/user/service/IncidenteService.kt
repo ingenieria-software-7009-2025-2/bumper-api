@@ -5,6 +5,7 @@ import com.bumper.api.user.repository.IncidenteRepository
 import org.slf4j.LoggerFactory
 import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
+import org.springframework.transaction.annotation.Propagation
 
 @Service
 class IncidenteService(
@@ -170,6 +171,29 @@ class IncidenteService(
     fun puedeModificar(incidenteId: String, usuarioId: Long): Boolean {
         val incidente = obtenerPorId(incidenteId) ?: return false
         return incidente.usuarioId == usuarioId
+    }
+    /**
+     * Elimina un incidente por su ID
+     *
+     * @param id ID del incidente a eliminar
+     * @return true si se eliminó correctamente, false en caso contrario
+     */
+    @Transactional(propagation = Propagation.REQUIRED)
+    fun eliminar(id: String): Boolean {
+        logger.info("Eliminando incidente con ID: $id")
+        return try {
+            // Verificar si el incidente existe antes de intentar eliminarlo
+            val incidente = obtenerPorId(id)
+            if (incidente == null) {
+                logger.warn("No se encontró el incidente con ID $id para eliminar")
+                return false
+            }
+
+            incidenteRepository.eliminarIncidente(id)
+        } catch (e: Exception) {
+            logger.error("Error al eliminar incidente $id: ${e.message}", e)
+            false
+        }
     }
 
     /**

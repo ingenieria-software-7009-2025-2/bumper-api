@@ -11,6 +11,7 @@ import java.sql.Timestamp
 import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import org.springframework.jdbc.core.ConnectionCallback
+import org.springframework.transaction.annotation.Propagation
 
 @Repository
 class IncidenteRepository(
@@ -60,7 +61,7 @@ class IncidenteRepository(
                 latitud, longitud, tipo_vialidad, 
                 estado, hora_incidente, fotos
             ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        """
+            """
 
             // Crear array SQL para las fotos
             val fotosArray = jdbcTemplate.execute(ConnectionCallback { connection ->
@@ -101,8 +102,8 @@ class IncidenteRepository(
 
     fun findAll(): List<Incidente> {
         val sql = """
-            SELECT * FROM incidentes
-            ORDER BY hora_incidente DESC
+        SELECT * FROM incidentes
+        ORDER BY hora_incidente DESC
         """
 
         return try {
@@ -115,9 +116,9 @@ class IncidenteRepository(
 
     fun findByUsuarioId(usuarioId: Long): List<Incidente> {
         val sql = """
-            SELECT * FROM incidentes
-            WHERE usuario_id = ?
-            ORDER BY hora_incidente DESC
+        SELECT * FROM incidentes
+        WHERE usuario_id = ?
+        ORDER BY hora_incidente DESC
         """
 
         return try {
@@ -128,12 +129,11 @@ class IncidenteRepository(
         }
     }
 
-
     fun findByEstado(estado: String): List<Incidente> {
         val sql = """
-            SELECT * FROM incidentes
-            WHERE estado = ? 
-            ORDER BY hora_incidente DESC
+        SELECT * FROM incidentes
+        WHERE estado = ? 
+        ORDER BY hora_incidente DESC
         """
         return try {
             jdbcTemplate.query(sql, incidenteRowMapper, estado)
@@ -145,15 +145,15 @@ class IncidenteRepository(
 
     fun findNearby(latitud: Double, longitud: Double, radioKm: Double): List<Incidente> {
         val sql = """
-            SELECT *, 
-                (6371 * acos(
-                    cos(radians(?)) * cos(radians(latitud)) *
-                    cos(radians(longitud) - radians(?)) +
-                    sin(radians(?)) * sin(radians(latitud))
-                )) as distancia
-            FROM incidentes
-            HAVING distancia <= ?
-            ORDER BY distancia, hora_incidente DESC
+        SELECT *, 
+        (6371 * acos(
+            cos(radians(?)) * cos(radians(latitud)) *
+            cos(radians(longitud) - radians(?)) +
+            sin(radians(?)) * sin(radians(latitud))
+        )) as distancia
+        FROM incidentes
+        HAVING distancia <= ?
+        ORDER BY distancia, hora_incidente DESC
         """
 
         return try {
@@ -182,6 +182,31 @@ class IncidenteRepository(
         } catch (e: Exception) {
             logger.error("Error al actualizar estado del incidente $id: ${e.message}", e)
             null
+        }
+    }
+
+    /**
+     * Elimina un incidente por su ID
+     *
+     * Método mejorado para manejar errores de SQL y proporcionar mejor logging
+     */
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    fun eliminarIncidente(id: String): Boolean {
+        logger.info("Intentando eliminar incidente con ID: $id")
+
+        try {
+            // Usar una conexión nueva para esta operación
+            val jdbcTemplateLocal = JdbcTemplate(dataSource)
+
+            // Consulta SQL explícita para eliminar el incidente
+            val sql = "DELETE FROM incidentes WHERE id = ?"
+            val rowsAffected = jdbcTemplateLocal.update(sql, id)
+
+            logger.info("Filas afectadas al eliminar incidente $id: $rowsAffected")
+            return rowsAffected > 0
+        } catch (e: Exception) {
+            logger.error("Error al eliminar incidente con ID $id: ${e.message}", e)
+            throw e  // Re-lanzar la excepción para que la transacción se revierta
         }
     }
 
