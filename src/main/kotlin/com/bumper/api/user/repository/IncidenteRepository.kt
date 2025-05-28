@@ -12,6 +12,7 @@ import java.time.LocalDateTime
 import java.time.format.DateTimeFormatter
 import org.springframework.jdbc.core.ConnectionCallback
 import org.springframework.transaction.annotation.Propagation
+import org.springframework.dao.EmptyResultDataAccessException
 
 @Repository
 class IncidenteRepository(
@@ -91,11 +92,15 @@ class IncidenteRepository(
     }
 
     fun findById(id: String): Incidente? {
-        val sql = "SELECT * FROM incidentes WHERE id = ?"
         return try {
-            jdbcTemplate.query(sql, incidenteRowMapper, id).firstOrNull()
+            val jdbcTemplate = JdbcTemplate(dataSource)
+            val sql = "SELECT * FROM incidentes WHERE id = ?"
+            jdbcTemplate.queryForObject(sql, incidenteRowMapper, id)
+        } catch (e: EmptyResultDataAccessException) {
+            logger.warn("No se encontró el incidente con ID $id")
+            null
         } catch (e: Exception) {
-            logger.error("Error al buscar incidente por ID $id: ${e.message}", e)
+            logger.error("Error al buscar incidente con ID $id: ${e.message}", e)
             null
         }
     }
@@ -168,10 +173,10 @@ class IncidenteRepository(
         }
     }
 
-    @Transactional
     fun updateEstado(id: String, estado: String): Incidente? {
         val sql = "UPDATE incidentes SET estado = ? WHERE id = ?"
         return try {
+            val jdbcTemplate = JdbcTemplate(dataSource)
             val rowsAffected = jdbcTemplate.update(sql, estado, id)
             if (rowsAffected > 0) {
                 findById(id)
@@ -190,23 +195,15 @@ class IncidenteRepository(
      *
      * Método mejorado para manejar errores de SQL y proporcionar mejor logging
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
     fun eliminarIncidente(id: String): Boolean {
-        logger.info("Intentando eliminar incidente con ID: $id")
-
-        try {
-            // Usar una conexión nueva para esta operación
-            val jdbcTemplateLocal = JdbcTemplate(dataSource)
-
-            // Consulta SQL explícita para eliminar el incidente
-            val sql = "DELETE FROM incidentes WHERE id = ?"
-            val rowsAffected = jdbcTemplateLocal.update(sql, id)
-
-            logger.info("Filas afectadas al eliminar incidente $id: $rowsAffected")
-            return rowsAffected > 0
+        val sql = "DELETE FROM incidentes WHERE id = ?"
+        return try {
+            val jdbcTemplate = JdbcTemplate(dataSource)
+            val rowsAffected = jdbcTemplate.update(sql, id)
+            rowsAffected > 0
         } catch (e: Exception) {
             logger.error("Error al eliminar incidente con ID $id: ${e.message}", e)
-            throw e  // Re-lanzar la excepción para que la transacción se revierta
+            false
         }
     }
 
