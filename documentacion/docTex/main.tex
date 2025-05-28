@@ -1,0 +1,43 @@
+\documentclass{config-wokSH}
+\usepackage[spanish]{babel} % Idioma
+\input{packet}
+
+
+\usepackage[backend=biber]{biblatex}
+\addbibresource{bibliografia.bib}
+
+\nocite{*} % Añade todas las referencias de bib sin cita
+
+
+% -------------------------------------------------------/
+% ------------------------------------------------------/
+\begin{document}
+
+\pagestyle{fancy}
+
+\thispagestyle{firstpage}
+% -----------------|
+% Portada Titulo   |
+\maketitle %       |
+% -----------------|
+\tableofcontents
+
+\input{paginas/01introduccion}
+\input{paginas/02benchmark}
+\input{paginas/04requerimientos}
+\input{paginas/05casosUso}
+\input{paginas/06software}
+\newpage
+\input{paginas/07diagramas}
+\input{paginas/08DocAPI}
+\input{paginas/09BaseDatos}
+
+% --------------------|
+% Referencias         |
+%\newpage %           |
+%\printbibliography % |
+% --------------------|
+
+\end{document}
+% -----------------------------------------------------\
+% ------------------------------------------------------\

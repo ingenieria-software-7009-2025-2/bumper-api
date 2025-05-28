@@ -1,0 +1,101 @@
+\section{Casos de Uso}
+
+\subsection*{CU1: Hacer Login}
+\textbf{Actores:} Usuario, Sistema\\
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item El usuario accede a la página de inicio de sesión. (RF1)
+    \item Ingresa su correo electrónico y contraseña.
+    \item El sistema verifica las credenciales.
+    \item Si las credenciales son correctas, el usuario es redirigido al mapa principal. (RF5)
+\end{enumerate}
+\textbf{Flujo Alternativo:}
+\begin{itemize}
+    \item \textit{Credenciales incorrectas:}
+    \begin{enumerate}
+        \item El sistema muestra un mensaje de error indicando que las credenciales no son válidas.
+        \item Ofrece un enlace para recuperar la contraseña por correo.
+    \end{enumerate}
+\end{itemize}
+
+
+\subsection*{CU2: Reportar Incidente Urbano}
+\textbf{Actores:} Ciudadano, Sistema\\
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item El usuario inicia sesión. (RF1)
+    \item Hace clic en ``Reportar Incidente'' desde el mapa principal. (RF3)
+    \item Marca la ubicación en el mapa o escribe una dirección. (RF3)
+    \item Completa un formulario con tipo de incidente, descripción y hasta 3 fotos. (RF2)
+    \item Confirma el reporte tras ver una vista previa.
+    \item El sistema muestra el reporte en el mapa con un código único. (RF5)
+\end{enumerate}
+\textbf{Flujo Alternativo:}
+\begin{itemize}
+    \item \textit{Sin inicio de sesión:}
+    \begin{enumerate}
+        \item El sistema redirige al usuario a la página de inicio de sesión antes de continuar.
+    \end{enumerate}
+\end{itemize}
+
+\subsection*{CU3: Modificar Estatus de Reporte}
+\textbf{Actores:} Ciudadano (creador del reporte), Sistema\\
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item El usuario inicia sesión y selecciona uno de sus reportes en el mapa. (RF2)
+    \item Abre la ventana del reporte y elige un nuevo estatus (``En proceso'' o ``Resuelto''). (RF2)
+    \item Confirma el cambio.
+    \item El sistema actualiza el estatus y muestra la versión modificada en el mapa. (RF5)
+\end{enumerate}
+\textbf{Flujo Alternativo:}
+\begin{itemize}
+    \item \textit{Usuario no creador:}
+    \begin{enumerate}
+        \item El sistema no muestra opciones de edición y limita la interacción a solo visualización.
+    \end{enumerate}
+\end{itemize}
+
+
+\subsection*{CU4: Ver Detalles de un Incidente}
+\textbf{Actores:} Usuario (registrado o invitado), Sistema\\
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item El usuario accede al mapa principal. (RF3)
+    \item Hace clic en un marcador de incidente en el mapa.
+    \item El sistema muestra una ventana emergente con los detalles del incidente, incluyendo:
+    \begin{itemize}
+        \item Tipo de incidente.
+        \item Ubicación.
+        \item Estado actual (Pendiente, En proceso, Resuelto).
+        \item Fotos asociadas al incidente.
+        \item Fecha y hora del reporte.
+    \end{itemize}
+\end{enumerate}
+\textbf{Flujo Alternativo:}
+\begin{itemize}
+    \item \textit{Incidente sin fotos:}
+    \begin{enumerate}
+        \item El sistema muestra un mensaje indicando que no hay fotos disponibles para este incidente.
+    \end{enumerate}
+\end{itemize}
+
+\subsection*{CU5: Editar Perfil de Usuario}
+\textbf{Actores:} Usuario, Sistema\\
+\textbf{Flujo Principal:}
+\begin{enumerate}
+    \item El usuario inicia sesión en el sistema. (RF1)
+    \item Accede a la sección de "Perfil" desde el menú principal. (RF10)
+    \item Visualiza su información actual, como nombre, apellido, correo electrónico y contraseña.
+    \item Realiza cambios en los campos permitidos (por ejemplo, nombre o contraseña).
+    \item Confirma los cambios haciendo clic en "Guardar". (RF11)
+    \item El sistema valida los datos ingresados y actualiza la información en la base de datos.
+    \item El sistema muestra un mensaje de confirmación indicando que los cambios se han guardado correctamente.
+\end{enumerate}
+\textbf{Flujo Alternativo:}
+\begin{itemize}
+    \item \textit{Datos inválidos:}
+    \begin{enumerate}
+        \item El sistema muestra un mensaje de error indicando qué campos necesitan corrección.
+        \item El usuario corrige los datos y vuelve a intentar guardar los cambios.
+    \end{enumerate}
+\end{itemize}
