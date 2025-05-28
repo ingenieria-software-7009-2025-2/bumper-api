@@ -8,7 +8,7 @@ data class Usuario(
     val apellido: String,
     val correo: String,
     val password: String,
-    val token: String = "inactivo",
+    val token: String = TOKEN_INACTIVO,
     val numeroIncidentes: Int = 0,
     val fechaRegistro: LocalDateTime = LocalDateTime.now()
 ) {
