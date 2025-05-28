@@ -185,30 +185,6 @@ class UsuarioController(private val usuarioService: UsuarioService) {
         "numeroIncidentes" to numeroIncidentes,
         "fechaRegistro" to fechaRegistro
     )
-
-    @PutMapping("/update-datos-basicos")
-    fun actualizarDatosBasicos(@RequestBody request: UsuarioDatosBasicosUpdateRequest): ResponseEntity<Any> {
-        logger.info("Actualizando datos básicos para usuario ID: ${request.id}")
-        return try {
-            val actualizado = usuarioService.actualizarDatosBasicos(
-                request.id,
-                request.nombre,
-                request.apellido,
-                request.password
-            )
-            if (actualizado) {
-                ResponseEntity.ok(mapOf("mensaje" to "Datos actualizados correctamente"))
-            } else {
-                ResponseEntity.status(HttpStatus.NOT_FOUND)
-                    .body(mapOf("mensaje" to "No se pudo actualizar el usuario"))
-            }
-        } catch (e: Exception) {
-            logger.error("Error al actualizar datos básicos: ${e.message}", e)
-            ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body(mapOf("mensaje" to "Error al actualizar datos básicos"))
-        }
-    }
-
 }
 
 // DTOs
@@ -236,11 +212,4 @@ data class UsuarioUpdateRequest(
     val password: String,
     val token: String,
     val numeroIncidentes: Int
-)
-
-data class UsuarioDatosBasicosUpdateRequest(
-    val id: Long,
-    val nombre: String,
-    val apellido: String,
-    val password: String? = null
 )
