@@ -7,6 +7,11 @@ import org.springframework.stereotype.Service
 import org.springframework.transaction.annotation.Transactional
 import org.springframework.transaction.annotation.Propagation
 
+/**
+ * Servicio de dominio para la gestión de incidentes viales.
+ * Orquesta la lógica de negocio y delega la persistencia al repositorio.
+ * Incluye validaciones de estado, permisos y lógica de enriquecimiento de datos.
+ */
 @Service
 class IncidenteService(
     private val incidenteRepository: IncidenteRepository,
@@ -15,13 +20,18 @@ class IncidenteService(
     private val logger = LoggerFactory.getLogger(javaClass)
 
     /**
-     * Crea un nuevo incidente
+     * Crea un nuevo incidente en el sistema.
+     * Valida el estado inicial y delega la persistencia al repositorio.
+     * @param incidente Entidad Incidente a crear
+     * @return Incidente creado y persistido
+     * @throws IllegalArgumentException si el estado es inválido
+     * @throws IllegalStateException si ocurre un error de persistencia
      */
     @Transactional
     fun crear(incidente: Incidente): Incidente {
         logger.info("Creando nuevo incidente para usuario ID: ${incidente.usuarioId}")
 
-        // Validar el estado inicial
+        // Validar el estado inicial del incidente
         val estadoInicial = incidente.estado.uppercase()
         if (!estadosValidos.contains(estadoInicial)) {
             logger.error("Estado inicial inválido: $estadoInicial")
@@ -37,7 +47,8 @@ class IncidenteService(
     }
 
     /**
-     * Obtiene todos los incidentes
+     * Obtiene todos los incidentes del sistema, enriquecidos con información básica del usuario.
+     * @return Lista de mapas con datos de incidentes y usuario asociado
      */
     fun obtenerTodos(): List<Map<String, Any?>> {
         logger.info("Obteniendo todos los incidentes")
@@ -47,6 +58,7 @@ class IncidenteService(
             val usuarios = usuarioService.buscarPorIds(usuarioIds)
             val usuarioMap = usuarios.associateBy { it.id }
 
+            // Enriquecer cada incidente con datos del usuario
             incidentes.map { incidente ->
                 val usuario = usuarioMap[incidente.usuarioId]
                 mapOf(
@@ -76,7 +88,9 @@ class IncidenteService(
     }
 
     /**
-     * Obtiene los incidentes de un usuario específico
+     * Obtiene todos los incidentes asociados a un usuario específico.
+     * @param usuarioId ID del usuario
+     * @return Lista de incidentes del usuario
      */
     fun obtenerPorUsuario(usuarioId: Long): List<Incidente> {
         logger.info("Obteniendo incidentes para usuario ID: $usuarioId")
@@ -89,7 +103,9 @@ class IncidenteService(
     }
 
     /**
-     * Obtiene un incidente por su ID
+     * Obtiene un incidente por su identificador único.
+     * @param id ID del incidente
+     * @return Incidente encontrado o null si no existe
      */
     @Transactional(readOnly = true)
     fun obtenerPorId(id: String): Incidente? {
@@ -103,7 +119,12 @@ class IncidenteService(
     }
 
     /**
-     * Actualiza el estado de un incidente
+     * Actualiza el estado de un incidente.
+     * Valida el nuevo estado antes de actualizar.
+     * @param id ID del incidente
+     * @param estado Nuevo estado a establecer
+     * @return Incidente actualizado o null si no se encontró
+     * @throws IllegalArgumentException si el estado es inválido
      */
     @Transactional
     fun actualizarEstado(id: String, estado: String): Incidente? {
@@ -125,7 +146,9 @@ class IncidenteService(
     }
 
     /**
-     * Obtiene incidentes por estado
+     * Obtiene incidentes filtrados por estado.
+     * @param estado Estado a buscar (PENDIENTE, EN_PROCESO, RESUELTO)
+     * @return Lista de incidentes con el estado especificado
      */
     fun obtenerPorEstado(estado: String): List<Incidente> {
         logger.info("Obteniendo incidentes con estado: $estado")
@@ -146,7 +169,12 @@ class IncidenteService(
     }
 
     /**
-     * Busca incidentes cercanos a una ubicación
+     * Busca incidentes cercanos a una ubicación geográfica.
+     * Valida las coordenadas y el radio antes de consultar.
+     * @param latitud Latitud de referencia
+     * @param longitud Longitud de referencia
+     * @param radioKm Radio de búsqueda en kilómetros
+     * @return Lista de incidentes cercanos
      */
     fun buscarCercanos(latitud: Double, longitud: Double, radioKm: Double): List<Incidente> {
         logger.info("Buscando incidentes cercanos a ($latitud, $longitud) en radio de $radioKm km")
@@ -166,15 +194,20 @@ class IncidenteService(
     }
 
     /**
-     * Valida si un usuario puede modificar un incidente
+     * Valida si un usuario puede modificar un incidente.
+     * Solo el usuario creador puede modificarlo.
+     * @param incidenteId ID del incidente
+     * @param usuarioId ID del usuario
+     * @return true si el usuario puede modificar el incidente, false en caso contrario
      */
     fun puedeModificar(incidenteId: String, usuarioId: Long): Boolean {
         val incidente = obtenerPorId(incidenteId) ?: return false
         return incidente.usuarioId == usuarioId
     }
+
     /**
-     * Elimina un incidente por su ID
-     *
+     * Elimina un incidente por su ID.
+     * Verifica existencia antes de eliminar.
      * @param id ID del incidente a eliminar
      * @return true si se eliminó correctamente, false en caso contrario
      */
@@ -188,7 +221,6 @@ class IncidenteService(
                 logger.warn("No se encontró el incidente con ID $id para eliminar")
                 return false
             }
-
             incidenteRepository.eliminarIncidente(id)
         } catch (e: Exception) {
             logger.error("Error al eliminar incidente $id: ${e.message}", e)
@@ -197,7 +229,11 @@ class IncidenteService(
     }
 
     /**
-     * Valida coordenadas y radio para búsqueda de incidentes cercanos
+     * Valida coordenadas y radio para búsqueda de incidentes cercanos.
+     * @param latitud Latitud a validar
+     * @param longitud Longitud a validar
+     * @param radioKm Radio a validar
+     * @return true si los parámetros son válidos, false en caso contrario
      */
     private fun coordenadasValidas(latitud: Double, longitud: Double, radioKm: Double): Boolean {
         return latitud in -90.0..90.0 &&
@@ -206,6 +242,7 @@ class IncidenteService(
     }
 
     companion object {
+        // Estados válidos permitidos para los incidentes
         private val estadosValidos = setOf("PENDIENTE", "EN_PROCESO", "RESUELTO")
     }
 }
