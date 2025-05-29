@@ -55,4 +55,20 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
     fun buscarPorIds(ids: List<Long>): List<Usuario> {
         return usuarioRepository.findByIds(ids)
     }
+
+    fun actualizarPassword(id: Long, nuevaPassword: String): Boolean {
+        logger.info("Actualizando contraseña para usuario ID: $id")
+
+        // Validar que el usuario existe
+        val usuario = usuarioRepository.findById(id)
+            ?: throw IllegalArgumentException("Usuario no encontrado")
+
+        // Validar que la contraseña no esté vacía
+        if (nuevaPassword.isBlank()) {
+            throw IllegalArgumentException("La contraseña no puede estar vacía")
+        }
+
+        return usuarioRepository.updatePassword(id, nuevaPassword)
+    }
+
 }

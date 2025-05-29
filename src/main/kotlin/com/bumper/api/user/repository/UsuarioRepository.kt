@@ -161,4 +161,17 @@ class UsuarioRepository(private val dataSource: DataSource) {
             false
         }
     }
+
+    @Transactional
+    fun updatePassword(id: Long, nuevaPassword: String): Boolean {
+        logger.info("Actualizando contraseña para usuario ID: $id")
+        val sql = "UPDATE usuarios SET password = ? WHERE id = ?"
+        return try {
+            val rowsAffected = jdbcTemplate.update(sql, nuevaPassword, id)
+            rowsAffected > 0
+        } catch (e: Exception) {
+            logger.error("Error al actualizar contraseña para usuario $id: ${e.message}", e)
+            false
+        }
+    }
 }

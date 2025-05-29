@@ -25,6 +25,7 @@ Bumper es una aplicación web diseñada para facilitar el reporte y seguimiento 
 *   `POST /v1/users/login`: Inicia sesión de usuario.
 *   `POST /v1/users/logout`: Cierra sesión de usuario.
 *   `PUT /v1/users`: Actualiza los datos de un usuario.
+*   `PUT /v1/users/update-password`: Actualiza la contraseña de un usuario.
 
 ### Incidentes
 

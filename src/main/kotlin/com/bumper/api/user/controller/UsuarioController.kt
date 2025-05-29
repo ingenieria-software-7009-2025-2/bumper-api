@@ -175,6 +175,39 @@ class UsuarioController(private val usuarioService: UsuarioService) {
         }
     }
 
+    @PutMapping("/update-password")
+    fun actualizarPassword(@RequestBody request: UpdatePasswordRequest): ResponseEntity<Any> {
+        logger.info("Actualizando contraseña para usuario ID: ${request.id}")
+        return try {
+            val actualizado = usuarioService.actualizarPassword(request.id, request.nuevaPassword)
+
+            if (actualizado) {
+                ResponseEntity.ok(mapOf(
+                    "mensaje" to "Contraseña actualizada correctamente"
+                ))
+            } else {
+                ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(mapOf("mensaje" to "No se pudo actualizar la contraseña"))
+            }
+        } catch (e: IllegalArgumentException) {
+            logger.warn("Error de validación al actualizar contraseña: ${e.message}")
+            ResponseEntity
+                .status(HttpStatus.BAD_REQUEST)
+                .body(mapOf("mensaje" to (e.message ?: "Error de validación")))
+        } catch (e: Exception) {
+            logger.error("Error al actualizar contraseña: ${e.message}", e)
+            ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body(mapOf("mensaje" to "Error interno al actualizar contraseña"))
+        }
+    }
+
+    data class UpdatePasswordRequest(
+        val id: Long,
+        val nuevaPassword: String
+    )
+
     // Función de extensión para mapear Usuario a respuesta
     private fun Usuario.toResponseMap() = mapOf(
         "id" to id,
