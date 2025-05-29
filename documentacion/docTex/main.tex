@@ -9,28 +9,37 @@
 \nocite{*} % Añade todas las referencias de bib sin cita
 
 
+\lstset{language=Python,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{blue},
+    commentstyle=\color{green},
+    stringstyle=\color{red}}
+
+
+
 % -------------------------------------------------------/
 % ------------------------------------------------------/
 \begin{document}
 
-\pagestyle{fancy}
+    \pagestyle{fancy}
 
-\thispagestyle{firstpage}
+    \thispagestyle{firstpage}
 % -----------------|
 % Portada Titulo   |
-\maketitle %       |
+    \maketitle %       |
 % -----------------|
-\tableofcontents
+    \tableofcontents
 
-\input{paginas/01introduccion}
-\input{paginas/02benchmark}
-\input{paginas/04requerimientos}
-\input{paginas/05casosUso}
-\input{paginas/06software}
-\newpage
-\input{paginas/07diagramas}
-\input{paginas/08DocAPI}
-\input{paginas/09BaseDatos}
+    \input{paginas/01introduccion}
+    \input{paginas/02benchmark}
+    \input{paginas/04requerimientos}
+    \input{paginas/05casosUso}
+    \input{paginas/06software}
+    \newpage
+    \input{paginas/07diagramas}
+    \newpage
+    \input{paginas/08DocAPI}
+    \input{paginas/09BaseDatos}
 
 % --------------------|
 % Referencias         |

@@ -1,17 +1,16 @@
 \section{Tecnología Usada}
 
-
 \subsection*{Backend}
 \begin{itemize}
     \item \textbf{Lenguaje de Programación: Kotlin}
     \begin{itemize}
         \item \textit{Razón de uso:} Kotlin es un lenguaje moderno, conciso y seguro que mejora la productividad del desarrollo al reducir el código repetitivo y minimizar errores comunes (como null pointer exceptions). Su interoperabilidad con Java permite aprovechar bibliotecas existentes, mientras que su sintaxis clara facilita el mantenimiento del código.
-        \item \textit{Ventaja para Bumper:} Ideal para implementar una API RESTful robusta (RF2, RF3) que gestione autenticación (RF1) y modificaciones de reportes (CU3), asegurando un backend eficiente y fácil de escalar (RNF5).
+        \item \textit{Ventaja para Bumper:} Ideal para implementar una API RESTful robusta (RF2, RF3, RF5, RF6) que gestione autenticación, cierre de sesión y operaciones sobre reportes, así como la generación de imágenes para compartir incidentes (RF7). Su eficiencia y escalabilidad facilitan la integración de nuevas funciones como actualización de contraseña (RF8) y notificaciones futuras.
     \end{itemize}
     \item \textbf{Framework: Spring Boot}
     \begin{itemize}
         \item \textit{Razón de uso:} Spring Boot simplifica la creación de aplicaciones backend con configuraciones automáticas, integración nativa con bases de datos y soporte para seguridad. Su arquitectura basada en microservicios permite manejar solicitudes simultáneas con baja latencia (RNF2).
-        \item \textit{Ventaja para Bumper:} Facilita la gestión de reportes (RF2) y la autenticación de usuarios (CU1), ofreciendo un entorno estable y modular que puede crecer con nuevas funcionalidades, como notificaciones o integración con autoridades (RNF5).
+        \item \textit{Ventaja para Bumper:} Facilita la gestión de reportes, autenticación de usuarios y la lógica de negocio para la descarga de imágenes de incidentes (RF7). Su modularidad permite crecer hacia funcionalidades como recuperación de contraseña o notificaciones (RF8, sugerido).
     \end{itemize}
 \end{itemize}
 
@@ -19,8 +18,8 @@
 \begin{itemize}
     \item \textbf{React}
     \begin{itemize}
-        \item \textit{Razón de uso:} React es una biblioteca de JavaScript que permite construir interfaces dinámicas y responsivas (RNF4) mediante componentes reutilizables. Su enfoque en el estado y la renderización eficiente soporta interacciones en tiempo real, como filtros en el mapa (RF4) y vistas previas de reportes (CU2).
-        \item \textit{Ventaja para Bumper:} Perfecto para integrar un mapa interactivo (RF3) y una barra lateral dinámica (CU4), asegurando una experiencia de usuario intuitiva y adaptable a dispositivos móviles (RNF4). Además, su ecosistema (e.g., react-leaflet) simplifica la integración con mapas.
+        \item \textit{Razón de uso:} React es una biblioteca de JavaScript que permite construir interfaces dinámicas y responsivas (RNF4) mediante componentes reutilizables. Su enfoque en el estado y la renderización eficiente soporta interacciones en tiempo real, como filtros en el mapa y vistas previas de reportes.
+        \item \textit{Ventaja para Bumper:} Perfecto para integrar un mapa interactivo con íconos personalizados por tipo de incidente (RF4, RF5), una barra lateral dinámica y la opción de descargar imágenes de reportes para redes sociales (RF7). Su ecosistema (e.g., react-leaflet) simplifica la integración con mapas y la experiencia móvil (RNF3).
     \end{itemize}
 \end{itemize}
 
@@ -28,8 +27,8 @@
 \begin{itemize}
     \item \textbf{PostgreSQL en Supabase}
     \begin{itemize}
-        \item \textit{Razón de uso:} PostgreSQL es un sistema de base de datos relacional robusto y de código abierto, ideal para almacenar datos estructurados como reportes con ubicaciones, estatus y fotos (RF2). Supabase añade una capa de facilidad con almacenamiento de archivos (fotos) y autenticación integrada, reduciendo la complejidad inicial.
-        \item \textit{Ventaja para Bumper:} Garantiza la persistencia de los reportes (CU2, CU3) y permite consultas rápidas para filtros (RF4), con escalabilidad para soportar más usuarios y datos (RNF5). El uso de Supabase ofrece un nivel gratuito inicial, optimizando costos para el prototipo y el que este activo siempre nos da cierta ventaja.
+        \item \textit{Razón de uso:} PostgreSQL es un sistema de base de datos relacional robusto y de código abierto, ideal para almacenar datos estructurados como reportes con ubicaciones, estatus y fotos. Supabase añade una capa de facilidad con almacenamiento de archivos (fotos) y autenticación integrada, reduciendo la complejidad inicial.
+        \item \textit{Ventaja para Bumper:} Garantiza la persistencia de los reportes y usuarios, permite consultas rápidas para filtros y visualización en el mapa (RF4, RF5), y soporta la escalabilidad para más usuarios y datos (RNF6). El almacenamiento de imágenes en Supabase facilita la generación de imágenes para compartir (RF7).
     \end{itemize}
 \end{itemize}
 
@@ -37,7 +36,7 @@
 \begin{itemize}
     \item \textbf{Leaflet con OpenStreetMap (Opción Principal)}
     \begin{itemize}
-        \item \textit{Razón de uso:} Leaflet es una biblioteca ligera y de código abierto para mapas interactivos, combinada con OpenStreetMap, una fuente de datos gratuita y global. Esto permite visualizar y marcar incidentes (RF3) sin costos asociados, a diferencia de APIs comerciales.
-        \item \textit{Ventaja para Bumper:} Su integración con React (via react-leaflet) asegura un mapa fluido y personalizable (CU4), con filtros dinámicos (RF4) y baja latencia (RNF2). Es ideal para un MVP escalable y económico (RNF5), con soporte para marcadores y popups (CU2, CU3).
+        \item \textit{Razón de uso:} Leaflet es una biblioteca ligera y de código abierto para mapas interactivos, combinada con OpenStreetMap, una fuente de datos gratuita y global. Esto permite visualizar y marcar incidentes (RF4, RF5) sin costos asociados, a diferencia de APIs comerciales.
+        \item \textit{Ventaja para Bumper:} Su integración con React (via react-leaflet) asegura un mapa fluido y personalizable, con íconos diferenciados por tipo de incidente, filtros dinámicos y baja latencia (RNF2). Es ideal para un MVP escalable y económico (RNF6), con soporte para marcadores, popups y visualización de detalles para descarga de imágenes (RF7).
     \end{itemize}
 \end{itemize}
