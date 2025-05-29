@@ -359,6 +359,66 @@
     \end{minted}
 \end{tcolorbox}
 
+% --- 7. Actualizar Contraseña ---
+\subsection*{\faServer\ 7. Actualizar Contraseña}
+\begin{tcolorbox}[endpoint]
+    \textbf{PUT} \texttt{/v1/users/update-password}\\
+    Actualiza la contraseña de un usuario.
+\end{tcolorbox}
+
+\begin{tcolorbox}[request]
+    \textbf{URL:} \textcolor{urlColor}{\texttt{http://localhost:8080/v1/users/update-password}}\\
+    \textbf{Método:} \textcolor{methodColor}{\texttt{PUT}}\\
+    \textbf{Headers:} \textcolor{headerColor}{\texttt{Content-Type: application/json}}\\
+    \textbf{Body:}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "id": 1,
+    "nuevaPassword": "nuevaPassword123"
+}
+    \end{minted}
+\end{tcolorbox}
+
+\begin{tcolorbox}[response]
+    \textbf{Status:} 200 OK\\
+    \textbf{Body:}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "mensaje": "Contraseña actualizada correctamente"
+}
+    \end{minted}
+\end{tcolorbox}
+
+\begin{tcolorbox}[response]
+    \textbf{Status:} 400 Bad Request\\
+    \textbf{Body (no se pudo actualizar):}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "mensaje": "No se pudo actualizar la contraseña"
+}
+    \end{minted}
+\end{tcolorbox}
+
+\begin{tcolorbox}[response]
+    \textbf{Status:} 400 Bad Request\\
+    \textbf{Body (validación):}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "mensaje": "Error de validación"
+}
+    \end{minted}
+\end{tcolorbox}
+
+\begin{tcolorbox}[response]
+    \textbf{Status:} 500 Internal Server Error\\
+    \textbf{Body:}
+    \begin{minted}[frame=single, bgcolor=gray!10, fontsize=\small]{json}
+{
+    "mensaje": "Error interno al actualizar contraseña"
+}
+    \end{minted}
+\end{tcolorbox}
+
 % ================ INCIDENTES ================
 
 % --- 1. Crear Incidente ---
