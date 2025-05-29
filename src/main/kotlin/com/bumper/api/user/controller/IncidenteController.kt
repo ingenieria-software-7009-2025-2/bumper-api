@@ -9,6 +9,10 @@ import org.springframework.http.ResponseEntity
 import org.springframework.web.bind.annotation.*
 import java.time.LocalDateTime
 
+/**
+ * Controlador REST para la gestión de incidentes viales.
+ * Expone endpoints para registrar, consultar, actualizar y eliminar incidentes.
+ */
 @RestController
 @RequestMapping("/v1/incidentes")
 class IncidenteController(
@@ -17,15 +21,15 @@ class IncidenteController(
 ) {
     private val logger = LoggerFactory.getLogger(javaClass)
 
-
-
     /**
-     * Endpoint para crear un nuevo incidente en el sistema.
+     * Crea un nuevo incidente en el sistema.
+     * Valida la existencia del usuario antes de registrar el incidente.
      */
     @PostMapping("/create")
     fun registrarIncidente(@RequestBody request: IncidenteRequest): ResponseEntity<Any> {
         logger.info("Recibida solicitud para registrar incidente: $request")
         return try {
+            // Validar que el usuario exista antes de registrar el incidente
             val usuario = usuarioService.buscarPorId(request.usuarioId)
                 ?: return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
@@ -34,6 +38,7 @@ class IncidenteController(
                         "usuarioId" to request.usuarioId
                     ))
 
+            // Construir el objeto Incidente con estado inicial "PENDIENTE"
             val incidente = Incidente(
                 usuarioId = request.usuarioId,
                 tipoIncidente = request.tipoIncidente,
@@ -44,6 +49,7 @@ class IncidenteController(
                 estado = "PENDIENTE"
             )
 
+            // Delegar la creación al servicio y retornar el incidente creado
             val incidenteCreado = incidenteService.crear(incidente)
             ResponseEntity.status(HttpStatus.CREATED).body(
                 mapOf(
@@ -52,6 +58,7 @@ class IncidenteController(
                 )
             )
         } catch (e: Exception) {
+            // Manejo de errores inesperados durante el registro
             logger.error("Error al registrar incidente: ${e.message}", e)
             ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -63,7 +70,8 @@ class IncidenteController(
     }
 
     /**
-     * Endpoint para obtener todos los incidentes registrados en el sistema.
+     * Obtiene todos los incidentes registrados en el sistema.
+     * Retorna una lista vacía si no hay incidentes.
      */
     @GetMapping("/all")
     fun obtenerTodos(): ResponseEntity<Any> {
@@ -87,6 +95,7 @@ class IncidenteController(
                 )
             }
         } catch (e: Exception) {
+            // Manejo de errores durante la consulta
             logger.error("Error al obtener todos los incidentes: ${e.message}", e)
             ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -95,20 +104,21 @@ class IncidenteController(
     }
 
     /**
-     * Endpoint para obtener todos los incidentes asociados a un usuario específico.
+     * Obtiene todos los incidentes asociados a un usuario específico.
+     * Enriquecer la respuesta con información básica del usuario.
      */
     @GetMapping("/usuario/{usuarioId}")
     fun obtenerPorUsuario(@PathVariable usuarioId: Long): ResponseEntity<Any> {
         logger.info("Obteniendo incidentes para el usuario con ID: $usuarioId")
         return try {
+            // Validar que el usuario exista antes de buscar incidentes
             val usuario = usuarioService.buscarPorId(usuarioId)
                 ?: return ResponseEntity
                     .status(HttpStatus.NOT_FOUND)
                     .body(mapOf("mensaje" to "Usuario no encontrado"))
 
+            // Obtener incidentes y enriquecer cada uno con datos del usuario
             val incidentes = incidenteService.obtenerPorUsuario(usuarioId)
-
-            // Enriquecer cada incidente con la información del usuario
             val incidentesConUsuario = incidentes.map { incidente ->
                 mapOf(
                     "id" to incidente.id,
@@ -141,6 +151,7 @@ class IncidenteController(
                 )
             )
         } catch (e: Exception) {
+            // Manejo de errores durante la consulta
             logger.error("Error al obtener incidentes del usuario $usuarioId: ${e.message}", e)
             ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -149,7 +160,7 @@ class IncidenteController(
     }
 
     /**
-     * Endpoint para obtener un incidente por su ID.
+     * Obtiene un incidente por su identificador único.
      */
     @GetMapping("/{id}")
     fun obtenerPorId(@PathVariable id: String): ResponseEntity<Any> {
@@ -169,6 +180,7 @@ class IncidenteController(
                     .body(mapOf("mensaje" to "Incidente no encontrado"))
             }
         } catch (e: Exception) {
+            // Manejo de errores durante la consulta
             logger.error("Error al buscar incidente con ID $id: ${e.message}", e)
             ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -177,7 +189,8 @@ class IncidenteController(
     }
 
     /**
-     * Endpoint para actualizar el estado de un incidente.
+     * Actualiza el estado de un incidente.
+     * Solo el usuario creador puede modificar el estado.
      */
     @PutMapping("/update-status/{id}")
     fun actualizarEstado(
@@ -188,12 +201,14 @@ class IncidenteController(
         logger.info("Actualizando estado del incidente con ID: $id a ${request.estado}")
 
         return try {
+            // Validar permisos del usuario para modificar el incidente
             if (!incidenteService.puedeModificar(id, usuarioId)) {
                 return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(mapOf("mensaje" to "No tienes permiso para modificar este incidente"))
             }
 
+            // Actualizar el estado y retornar el incidente actualizado
             val incidenteActualizado = incidenteService.actualizarEstado(id, request.estado)
             if (incidenteActualizado != null) {
                 ResponseEntity.ok(
@@ -208,6 +223,7 @@ class IncidenteController(
                     .body(mapOf("mensaje" to "Incidente no encontrado"))
             }
         } catch (e: Exception) {
+            // Manejo de errores durante la actualización
             logger.error("Error al actualizar estado del incidente $id: ${e.message}", e)
             ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -216,7 +232,8 @@ class IncidenteController(
     }
 
     /**
-     * Endpoint para buscar incidentes cercanos a una ubicación geográfica.
+     * Busca incidentes cercanos a una ubicación geográfica dada.
+     * Utiliza latitud, longitud y radio en kilómetros como parámetros de búsqueda.
      */
     @GetMapping("/cercanos")
     fun buscarCercanos(
@@ -240,6 +257,7 @@ class IncidenteController(
                 )
             )
         } catch (e: Exception) {
+            // Manejo de errores durante la búsqueda
             logger.error("Error al buscar incidentes cercanos: ${e.message}", e)
             ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -248,9 +266,8 @@ class IncidenteController(
     }
 
     /**
-     * Endpoint para eliminar un incidente.
-     *
-     * Permite a un usuario eliminar un incidente que haya creado.
+     * Elimina un incidente del sistema.
+     * Solo el usuario creador puede eliminar el incidente.
      */
     @DeleteMapping("/{id}")
     fun eliminarIncidente(
@@ -260,7 +277,7 @@ class IncidenteController(
         logger.info("Eliminando incidente con ID: $id por usuario: $usuarioId")
 
         return try {
-            // Verificar si el incidente existe
+            // Verificar existencia del incidente antes de eliminar
             val incidente = incidenteService.obtenerPorId(id)
             if (incidente == null) {
                 return ResponseEntity
@@ -268,13 +285,14 @@ class IncidenteController(
                     .body(mapOf("mensaje" to "Incidente no encontrado"))
             }
 
-            // Verificar si el usuario tiene permiso para eliminar este incidente
+            // Validar permisos del usuario para eliminar el incidente
             if (!incidenteService.puedeModificar(id, usuarioId)) {
                 return ResponseEntity
                     .status(HttpStatus.FORBIDDEN)
                     .body(mapOf("mensaje" to "No tienes permiso para eliminar este incidente"))
             }
 
+            // Eliminar el incidente y retornar respuesta según resultado
             val eliminado = incidenteService.eliminar(id)
             if (eliminado) {
                 ResponseEntity.ok(
@@ -286,6 +304,7 @@ class IncidenteController(
                     .body(mapOf("mensaje" to "No se pudo eliminar el incidente"))
             }
         } catch (e: Exception) {
+            // Manejo de errores durante la eliminación
             logger.error("Error al eliminar incidente $id: ${e.message}", e)
             ResponseEntity
                 .status(HttpStatus.INTERNAL_SERVER_ERROR)
@@ -299,6 +318,7 @@ class IncidenteController(
 
 /**
  * DTO para la solicitud de creación de incidente.
+ * Contiene los campos mínimos requeridos para registrar un incidente.
  */
 data class IncidenteRequest(
     val usuarioId: Long,
@@ -311,6 +331,7 @@ data class IncidenteRequest(
 
 /**
  * DTO para actualizar el estado de un incidente.
+ * Solo contiene el nuevo estado a establecer.
  */
 data class EstadoRequest(
     val estado: String
