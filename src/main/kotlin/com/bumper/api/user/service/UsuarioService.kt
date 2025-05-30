@@ -81,7 +81,7 @@ class UsuarioService(private val usuarioRepository: UsuarioRepository) {
 
         // Validación de contraseña mediante comparación directa
         if (usuario.password != password) {
-            throw IllegalArgumentException("Contraseña incorrecta")
+            throw IllegalArgumentException("Credenciales no validas, intente de nuevo")
         }
 
         // Activación del token de sesión y recuperación del usuario actualizado
